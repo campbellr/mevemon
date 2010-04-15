@@ -1,5 +1,6 @@
 import hildon
 import gtk
+import eveapi
 
 from ui.fremantle import ui
 
