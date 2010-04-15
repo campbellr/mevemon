@@ -12,6 +12,11 @@ class mEveMon():
 
     def run(self):
         gtk.main()
+    
+    def quit(self, *args):
+        gtk.main_quit()
+	
 
 if __name__ == "__main__":
-    mEveMon.run()
+    app = mEveMon()
+    app.run()

@@ -18,22 +18,22 @@ class mEveMonUI():
 
     menu_items = ("Settings", "About", "Refresh")
 
-    def __init__(self):
-        program = hildon.Program.get_instance()
-    
+    def __init__(self, controller):
+	self.controller = controller
+   
         gtk.set_application_name("mEveMon")
     
         #create the main window
         win = hildon.StackableWindow()
-        win.connect("destroy", gtk.main_quit, None)
+        win.connect("destroy", self.controller.quit)
 
         # Create menu
-        menu = create_menu(win)
+        menu = self.create_menu(win)
         # Attach menu to the window
         win.set_app_menu(menu)
 
         pannable_area = hildon.PannableArea()
-        table = create_table(win)
+        table = self.create_table(win)
 
         pannable_area.add_with_viewport(table)
 	
@@ -41,7 +41,7 @@ class mEveMonUI():
 	
         win.show_all()
   
-    def settings_clicked(button, window):
+    def settings_clicked(self, button, window):
    
         dialog = gtk.Dialog()
    
@@ -52,39 +52,39 @@ class mEveMonUI():
         dialog.destroy()
 
 
-    def about_clicked(button):
+    def about_clicked(self, button):
     
         dialog = gtk.AboutDialog()
-        dialog.set_website(about_website)
-        dialog.set_website_label(about_website)
-        dialog.set_name(about_name)
-        dialog.set_authors(about_authors)
-        dialog.set_comments(about_text)
-        dialog.set_version(app_version)
+        dialog.set_website(self.about_website)
+        dialog.set_website_label(self.about_website)
+        dialog.set_name(self.about_name)
+        dialog.set_authors(self.about_authors)
+        dialog.set_comments(self.about_text)
+        dialog.set_version(self.app_version)
         dialog.run()
         dialog.destroy()
 
-    def refresh_clicked(button, window):
+    def refresh_clicked(self, button, window):
         pass
   
 
-    def create_menu(window):
+    def create_menu(self, window):
     
         menu = hildon.AppMenu()
 
-        for command in menu_items:
+        for command in self.menu_items:
             # Create menu entries
             button = hildon.GtkButton(gtk.HILDON_SIZE_AUTO)
             button.set_label(command)
 
-	        if command == "About":
-	            button.connect("clicked", about_clicked)
+	    if command == "About":
+	            button.connect("clicked", self.about_clicked)
             elif command == "Settings":
-                button.connect("clicked", settings_clicked, window)
-	        elif command == "Refresh":
-	            button.connect("clicked", refresh_clicked, window)
-	        else:
-	            assert False, command
+                button.connect("clicked", self.settings_clicked, window)
+	    elif command == "Refresh":
+	    	button.connect("clicked", self.refresh_clicked, window)
+	    else:
+	    	assert False, command
 
             # Add entry to the view menu
             menu.append(button)
@@ -93,7 +93,7 @@ class mEveMonUI():
 
         return menu
 
-    def create_table(window):
+    def create_table(self, window):
     
         # create a table of 10 by 10 squares. 
         table = gtk.Table (1, 10, False)
