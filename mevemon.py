@@ -1,7 +1,7 @@
 import hildon
 import gtk
 
-import ui
+from ui.fremantle import ui
 
 class mEveMon():
     def __init__(self):
