@@ -10,7 +10,7 @@ class mEveMonUI():
 
     about_name = 'mEveMon'
     about_text = ('Mobile character monitor for EVE Online')
-    about_authors = ['Ryan Campbell']
+    about_authors = ['Ryan Campbell','Danny Campbell']
     about_website = 'http://example.site.org'
     app_version = '0.1'
 
@@ -50,8 +50,9 @@ class mEveMonUI():
 	uidLabel.set_justify(gtk.JUSTIFY_LEFT)
 	vbox.add(uidLabel)
         
-	uidEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
-        uidEntry.set_placeholder("User ID")
+        # had to remove placeholder stuff --danny
+	uidEntry = gtk.Entry()
+        uidEntry.set_text(self.controller.get_uid())
 	uidEntry.set_property('is_focus', False)
        	
         vbox.add(uidEntry)
@@ -60,21 +61,23 @@ class mEveMonUI():
 	apiLabel.set_justify(gtk.JUSTIFY_LEFT)
 	vbox.add(apiLabel)
         
-	apiEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
-        apiEntry.set_placeholder("API Key")
-	apiEntry.set_property('is_focus', False)
+	# had to remove placeholder stuff --danny
+        apiEntry = gtk.Entry()
+        apiEntry.set_text(self.controller.get_api_key())
+        apiEntry.set_property('is_focus', False)
+
 	vbox.add(apiEntry)
-	
-       
+	       
 	ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 	help_button = dialog.add_button(gtk.STOCK_HELP, gtk.RESPONSE_HELP)
 
 
         dialog.show_all()
         result = dialog.run()
-	#if result == gtk.RESPONSE_OK:
-	#    self.set_api_key(apiEntry.get_text())
-	#    self.set_uid(uidEntry.get_text())
+
+        if result == gtk.RESPONSE_OK:
+            self.controller.set_api_key(apiEntry.get_text())
+            self.controller.set_uid(uidEntry.get_text())
 	    
         dialog.destroy()
 
