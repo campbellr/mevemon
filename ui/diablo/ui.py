@@ -17,7 +17,7 @@ class mEveMonUI():
     menu_items = ("Settings", "About", "Refresh")
 
     def __init__(self, controller):
-	self.controller = controller
+        self.controller = controller
    
         gtk.set_application_name("mEveMon")
     
@@ -33,43 +33,43 @@ class mEveMonUI():
         # create & add table, removed references to PannableArea --danny
         table = self.create_table(win)
         win.add(table);
-	
+    
         win.show_all()
   
     def settings_clicked(self, button, window):
    
         dialog = gtk.Dialog()
-  	
+    
         #get the vbox to pack all the settings into
         vbox = dialog.vbox
-	
+    
         dialog.set_transient_for(window)
         dialog.set_title("Settings")
 
-	uidLabel = gtk.Label("User ID:")
-	uidLabel.set_justify(gtk.JUSTIFY_LEFT)
-	vbox.add(uidLabel)
+        uidLabel = gtk.Label("User ID:")
+        uidLabel.set_justify(gtk.JUSTIFY_LEFT)
+        vbox.add(uidLabel)
         
         # had to remove placeholder stuff --danny
-	uidEntry = gtk.Entry()
+        uidEntry = gtk.Entry()
         uidEntry.set_text(self.controller.get_uid())
-	uidEntry.set_property('is_focus', False)
-       	
+        uidEntry.set_property('is_focus', False)
+        
         vbox.add(uidEntry)
 
-	apiLabel = gtk.Label("API key:")
-	apiLabel.set_justify(gtk.JUSTIFY_LEFT)
-	vbox.add(apiLabel)
+        apiLabel = gtk.Label("API key:")
+        apiLabel.set_justify(gtk.JUSTIFY_LEFT)
+        vbox.add(apiLabel)
         
-	# had to remove placeholder stuff --danny
+        # had to remove placeholder stuff --danny
         apiEntry = gtk.Entry()
         apiEntry.set_text(self.controller.get_api_key())
         apiEntry.set_property('is_focus', False)
 
-	vbox.add(apiEntry)
-	       
-	ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
-	help_button = dialog.add_button(gtk.STOCK_HELP, gtk.RESPONSE_HELP)
+        vbox.add(apiEntry)
+           
+        ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        help_button = dialog.add_button(gtk.STOCK_HELP, gtk.RESPONSE_HELP)
 
 
         dialog.show_all()
@@ -78,10 +78,10 @@ class mEveMonUI():
         if result == gtk.RESPONSE_OK:
             self.controller.set_api_key(apiEntry.get_text())
             self.controller.set_uid(uidEntry.get_text())
-	    
+        
         dialog.destroy()
 
-	return result
+        return result
 
     def about_clicked(self, button):
     
@@ -108,14 +108,14 @@ class mEveMonUI():
             # Create menu entries, changed from hildon.GtkButton() --danny
             button = gtk.MenuItem( command )
 
-	    if command == "About":
-	            button.connect("activate", self.about_clicked)
+            if command == "About":
+                button.connect("activate", self.about_clicked)
             elif command == "Settings":
                 button.connect("activate", self.settings_clicked, window)
-	    elif command == "Refresh":
-	    	button.connect("activate", self.refresh_clicked, window)
-	    else:
-	    	assert False, command
+            elif command == "Refresh":
+                button.connect("activate", self.refresh_clicked, window)
+            else:
+                assert False, command
 
             # Add entry to the view menu
             menu.append(button)
