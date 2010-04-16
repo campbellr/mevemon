@@ -19,7 +19,7 @@ class mEveMonUI():
     menu_items = ("Settings", "About", "Refresh")
 
     def __init__(self, controller):
-	self.controller = controller
+        self.controller = controller
    
         gtk.set_application_name("mEveMon")
     
@@ -36,54 +36,54 @@ class mEveMonUI():
         table = self.create_table(win)
 
         pannable_area.add_with_viewport(table)
-	
+    
         win.add(pannable_area);
-	
+    
         win.show_all()
   
     def settings_clicked(self, button, window):
    
         dialog = gtk.Dialog()
-  	
+    
         #get the vbox to pack all the settings into
         vbox = dialog.vbox
-	
+    
         dialog.set_transient_for(window)
         dialog.set_title("Settings")
 
-	uidLabel = gtk.Label("User ID:")
-	uidLabel.set_justify(gtk.JUSTIFY_LEFT)
-	vbox.add(uidLabel)
+        uidLabel = gtk.Label("User ID:")
+        uidLabel.set_justify(gtk.JUSTIFY_LEFT)
+        vbox.add(uidLabel)
         
-	uidEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        uidEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
         uidEntry.set_placeholder("User ID")
-	uidEntry.set_property('is_focus', False)
-       	
+        uidEntry.set_property('is_focus', False)
+        
         vbox.add(uidEntry)
 
-	apiLabel = gtk.Label("API key:")
-	apiLabel.set_justify(gtk.JUSTIFY_LEFT)
-	vbox.add(apiLabel)
+        apiLabel = gtk.Label("API key:")
+        apiLabel.set_justify(gtk.JUSTIFY_LEFT)
+        vbox.add(apiLabel)
         
-	apiEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        apiEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
         apiEntry.set_placeholder("API Key")
-	apiEntry.set_property('is_focus', False)
-	vbox.add(apiEntry)
-	
+        apiEntry.set_property('is_focus', False)
+        vbox.add(apiEntry)
+    
        
-	ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
-	help_button = dialog.add_button(gtk.STOCK_HELP, gtk.RESPONSE_HELP)
+        ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        help_button = dialog.add_button(gtk.STOCK_HELP, gtk.RESPONSE_HELP)
 
 
         dialog.show_all()
         result = dialog.run()
-	#if result == gtk.RESPONSE_OK:
-	#    self.set_api_key(apiEntry.get_text())
-	#    self.set_uid(uidEntry.get_text())
-	    
+        #if result == gtk.RESPONSE_OK:
+        #    self.set_api_key(apiEntry.get_text())
+        #    self.set_uid(uidEntry.get_text())
+        
         dialog.destroy()
 
-	return result
+        return result
 
     def about_clicked(self, button):
     
@@ -110,14 +110,14 @@ class mEveMonUI():
             button = hildon.GtkButton(gtk.HILDON_SIZE_AUTO)
             button.set_label(command)
 
-	    if command == "About":
-	            button.connect("clicked", self.about_clicked)
+            if command == "About":
+                button.connect("clicked", self.about_clicked)
             elif command == "Settings":
                 button.connect("clicked", self.settings_clicked, window)
-	    elif command == "Refresh":
-	    	button.connect("clicked", self.refresh_clicked, window)
-	    else:
-	    	assert False, command
+            elif command == "Refresh":
+                button.connect("clicked", self.refresh_clicked, window)
+            else:
+                assert False, command
 
             # Add entry to the view menu
             menu.append(button)
