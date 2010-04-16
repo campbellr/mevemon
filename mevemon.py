@@ -2,9 +2,10 @@ import hildon
 import gtk
 import eveapi
 
-try:
+#ugly hack to check maemo version. any better way?
+if hasattr(hildon, "StackableWindow"):
     from ui.fremantle import ui
-except ImportError:
+else:
     from ui.diablo import ui
 
 class mEveMon():
