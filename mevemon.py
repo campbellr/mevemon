@@ -2,8 +2,10 @@ import hildon
 import gtk
 import eveapi
 
-#from ui.fremantle import ui
-from ui.diablo import ui
+try:
+    from ui.fremantle import ui
+except ImportError:
+    from ui.diablo import ui
 
 class mEveMon():
     def __init__(self):
