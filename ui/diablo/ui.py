@@ -5,6 +5,7 @@ import sys
 
 import gtk
 import hildon
+import gobject
 
 class mEveMonUI():
 
@@ -30,12 +31,50 @@ class mEveMonUI():
         # Attach menu to the window, changed from set_app_menu() --danny
         win.set_menu(menu)
 
-        # create & add table, removed references to PannableArea --danny
-        table = self.create_table(win)
-        win.add(table);
-    
+        # will probably need to refer to http://maemo.org/community/maemo-developers/gtktreeview_issue/ for sample code again when we make these clickable --danny
+        model = self.create_model()
+        treeview = gtk.TreeView( model = model )
+        treeview.set_model(model)
+        self.add_columns_to_treeview(treeview)
+
+        win.add(treeview)
         win.show_all()
   
+    def create_model(self):
+        lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
+
+        #get icon and name and put in a liststore
+
+        # temporary hard-coding until we can fetch the data with eveapi
+        # something like:
+        # char list = self.controller.get_characters()
+        char_list = [("Character 1", "avatar.png"), ("Character 2", "avatar.png")]
+
+        for name, icon in char_list:
+            liter = lstore.append()
+            lstore.set(liter, 1, name, 0, self.set_pix(icon))
+
+        return lstore
+
+    def set_pix(self, filename):
+        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        return pixbuf
+
+    def add_columns_to_treeview(self, treeview):
+        #Column 0 for the treeview
+        renderer = gtk.CellRendererPixbuf()
+        column = gtk.TreeViewColumn()
+        column.pack_start(renderer, True)
+        column.add_attribute(renderer, "pixbuf", 0)
+        treeview.append_column(column)
+
+        #Column 1 for the treeview
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('title', renderer, text=1)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+ 
+
     def settings_clicked(self, button, window):
    
         dialog = gtk.Dialog()
@@ -123,22 +162,6 @@ class mEveMonUI():
         menu.show_all()
 
         return menu
-
-    def create_table(self, window):
-    
-        # create a table of 10 by 10 squares. 
-        table = gtk.Table (1, 10, False)
-        table.show()
-
-        # this simply creates a grid of toggle buttons on the table
-        # to demonstrate the scrolled window. 
-        for i in range(10):
-            data_buffer = "button %d\n" % i
-            button = gtk.ToggleButton(data_buffer)
-            table.attach(button, 0, 1 , i, i+1)
-
-        return table
-
 
 if __name__ == "__main__":
     main()
