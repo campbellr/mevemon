@@ -47,8 +47,8 @@ class mEveMonUI():
 
         # temporary hard-coding until we can fetch the data with eveapi
         # something like:
-        # char list = self.controller.get_characters()
-        char_list = [("Character 1", "avatar.png"), ("Character 2", "avatar.png")]
+        char_list = self.controller.get_characters()
+        #char_list = [("Character 1", "avatar.png"), ("Character 2", "avatar.png")]
 
         for name, icon in char_list:
             liter = lstore.append()
