@@ -1,6 +1,7 @@
 import hildon
 import gtk
 from eveapi import eveapi
+import imgfetch
 
 # we will store our preferences in gconf
 import gnome.gconf
@@ -41,27 +42,27 @@ class mEveMon():
     # really quick hack to get character list. doesn't handle errors well, and if it can't get the gconf settings it just returns the placeholders, when in reality it should tell the UI or something. basically half finished, just uploading to show ry... FIXME --danny
     def get_characters( self ):
         ui_char_list = []
-        print 'get_characters() called.'
+        # error message --danny
         placeholder_chars = [("Please check your API settings.", "imgs/error.jpg")]
         api = eveapi.EVEAPIConnection()
         uid = self.get_uid()
         api_key = self.get_api_key()
+        # if they are entered into gconf, try getting api data --danny
         if ( uid and api_key ):
             auth = api.auth( userID = uid, apiKey = api_key )
             try:
                 api_char_list = auth.account.Characters()
             except eveapi.Error, e:
-                print "Sorry, eveapi returned error code %s." % e.code
-                print '"' + e.message + '"'
+                # if we can't, return the error message/pic --danny
                 return placeholder_chars
             except Exception, e:
-                print "The sky is falling! Unknown error: ", str( e )
+                # unknown exception, dunno if this needs to be here if I just ignore it... probably a bad idea, but it was in the apitest.py example... --danny
                 return placeholder_chars
-            print "grabbing character list:"
+            # append each char we get to the list we'll return to the UI --danny
             for character in api_char_list.characters:
-                print character
-                ui_char_list.append( ( character.name, "imgs/avatar.jpg" ) )
+                ui_char_list.append( ( character.name, imgfetch.portrait_filename( character.characterID ) ) )
             return ui_char_list
+        # if not entered into gconf, error message --danny
         else:
             return placeholder_chars
         

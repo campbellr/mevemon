@@ -17,5 +17,3 @@ def portrait_filename( char_id ):
     fp.write( img )
     fp.close()
     return filename
-
-print portrait_filename( '797400947' )
