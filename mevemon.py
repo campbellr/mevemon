@@ -1,7 +1,7 @@
 import hildon
 import gtk
 from eveapi import eveapi
-import imgfetch
+import fetchimg
 
 # we will store our preferences in gconf
 import gnome.gconf
@@ -60,7 +60,7 @@ class mEveMon():
                 return placeholder_chars
             # append each char we get to the list we'll return to the UI --danny
             for character in api_char_list.characters:
-                ui_char_list.append( ( character.name, imgfetch.portrait_filename( character.characterID ) ) )
+                ui_char_list.append( ( character.name, fetchimg.portrait_filename( character.characterID, 64 ) ) )
             return ui_char_list
         # if not entered into gconf, error message --danny
         else:
