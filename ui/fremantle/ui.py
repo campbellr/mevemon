@@ -13,7 +13,7 @@ class mEveMonUI():
 
     about_name = 'mEveMon'
     about_text = ('Mobile character monitor for EVE Online')
-    about_authors = ['Ryan Campbell']
+    about_authors = ['Ryan Campbell', 'Danny Campbell']
     about_website = 'http://example.site.org'
     app_version = '0.1'
 
@@ -55,10 +55,7 @@ class mEveMonUI():
 
         #get icon and name and put in a liststore
 
-        # temporary hard-coding until we can fetch the data with eveapi
-        # something like:
-        # char list = self.controller.get_characters()
-        char_list = [("Character 1", "avatar.png"), ("Character 2", "avatar.png")]
+        char_list = self.controller.get_characters()
 
         for name, icon in char_list:
             liter = lstore.append()
@@ -116,7 +113,6 @@ class mEveMonUI():
         apiEntry.set_property('is_focus', False)
 
         vbox.add(apiEntry)
-    
        
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
         help_button = dialog.add_button(gtk.STOCK_HELP, gtk.RESPONSE_HELP)
@@ -145,8 +141,7 @@ class mEveMonUI():
         dialog.destroy()
 
     def refresh_clicked(self, button, window):
-        pass
-  
+        pass 
 
     def create_menu(self, window):
     
