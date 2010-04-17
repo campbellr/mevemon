@@ -2,6 +2,7 @@ import hildon
 import gtk
 from eveapi import eveapi
 import fetchimg
+import apicache
 
 # we will store our preferences in gconf
 import gnome.gconf
@@ -44,12 +45,12 @@ class mEveMon():
         ui_char_list = []
         # error message --danny
         placeholder_chars = [("Please check your API settings.", "imgs/error.jpg")]
-        api = eveapi.EVEAPIConnection()
+        cached_api = eveapi.EVEAPIConnection( cacheHandler = apicache.cache_handler( debug = False ) )
         uid = self.get_uid()
         api_key = self.get_api_key()
         # if they are entered into gconf, try getting api data --danny
         if ( uid and api_key ):
-            auth = api.auth( userID = uid, apiKey = api_key )
+            auth = cached_api.auth( userID = uid, apiKey = api_key )
             try:
                 api_char_list = auth.account.Characters()
             except eveapi.Error, e:
@@ -57,7 +58,8 @@ class mEveMon():
                 return placeholder_chars
             except Exception, e:
                 # unknown exception, dunno if this needs to be here if I just ignore it... probably a bad idea, but it was in the apitest.py example... --danny
-                return placeholder_chars
+                ##return placeholder_chars
+                raise
             # append each char we get to the list we'll return to the UI --danny
             for character in api_char_list.characters:
                 ui_char_list.append( ( character.name, fetchimg.portrait_filename( character.characterID, 64 ) ) )
@@ -65,7 +67,7 @@ class mEveMon():
         # if not entered into gconf, error message --danny
         else:
             return placeholder_chars
-        
+
 if __name__ == "__main__":
     app = mEveMon()
     app.run()
