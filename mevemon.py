@@ -42,7 +42,7 @@ class mEveMon():
     def get_characters( self ):
         ui_char_list = []
         print 'get_characters() called.'
-        placeholder_chars = [("Character 1", "avatar.png"), ("Character 2", "avatar.png")]
+        placeholder_chars = [("Please check your API settings.", "imgs/error.jpg")]
         api = eveapi.EVEAPIConnection()
         uid = self.get_uid()
         api_key = self.get_api_key()
@@ -56,11 +56,11 @@ class mEveMon():
                 return placeholder_chars
             except Exception, e:
                 print "The sky is falling! Unknown error: ", str( e )
-                raise
+                return placeholder_chars
             print "grabbing character list:"
             for character in api_char_list.characters:
                 print character
-                ui_char_list.append( ( character.name, "avatar.png" ) )
+                ui_char_list.append( ( character.name, "imgs/avatar.jpg" ) )
             return ui_char_list
         else:
             return placeholder_chars

@@ -32,21 +32,24 @@ class mEveMonUI():
         win.set_menu(menu)
 
         # will probably need to refer to http://maemo.org/community/maemo-developers/gtktreeview_issue/ for sample code again when we make these clickable --danny
-        model = self.create_model()
-        treeview = gtk.TreeView( model = model )
-        treeview.set_model(model)
+        self.char_model = self.create_char_model()
+        treeview = gtk.TreeView( model = self.char_model )
+        treeview.set_model(self.char_model)
         self.add_columns_to_treeview(treeview)
 
         win.add(treeview)
         win.show_all()
   
-    def create_model(self):
+    def create_char_model(self):
         lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
 
         #get icon and name and put in a liststore
 
-        # temporary hard-coding until we can fetch the data with eveapi
-        # something like:
+        self.fill_char_model(lstore)
+
+        return lstore
+
+    def fill_char_model(self, lstore):
         char_list = self.controller.get_characters()
         #char_list = [("Character 1", "avatar.png"), ("Character 2", "avatar.png")]
 
@@ -54,7 +57,9 @@ class mEveMonUI():
             liter = lstore.append()
             lstore.set(liter, 1, name, 0, self.set_pix(icon))
 
-        return lstore
+    def update_model(self, lstore):
+        lstore.clear()
+        self.fill_char_model(lstore)
 
     def set_pix(self, filename):
         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
@@ -117,6 +122,7 @@ class mEveMonUI():
         if result == gtk.RESPONSE_OK:
             self.controller.set_api_key(apiEntry.get_text())
             self.controller.set_uid(uidEntry.get_text())
+            self.update_model(self.char_model)
         
         dialog.destroy()
 
@@ -135,9 +141,8 @@ class mEveMonUI():
         dialog.destroy()
 
     def refresh_clicked(self, button, window):
-        pass
+        self.update_model(self.char_model)
   
-
     def create_menu(self, window):
     
         # changed from hildon.AppMenu --danny
