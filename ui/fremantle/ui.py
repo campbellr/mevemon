@@ -39,34 +39,45 @@ class mEveMonUI():
         # gtk.HILDON_UI_MODE_EDIT -> selection in the treeview
         treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
 
-        model = self.create_model()
-        treeview.set_model(model)
+        self.char_model = self.create_char_model()
+        treeview.set_model(self.char_model)
 
         self.add_columns_to_treeview(treeview)
 
         pannable_area.add(treeview)
 
         win.add(pannable_area);
-    
+        
         win.show_all()
 
-    def create_model(self):
+    
+    def create_char_model(self):
         lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
 
         #get icon and name and put in a liststore
+        self.fill_char_model(lstore)
 
+        return lstore
+
+
+    def fill_char_model(self, lstore):
         char_list = self.controller.get_characters()
 
         for name, icon in char_list:
             liter = lstore.append()
             lstore.set(liter, 1, name, 0, self.set_pix(icon))
+    
 
-        return lstore
+    def update_model(self, lstore):
+        lstore.clear()
+        self.fill_char_model(lstore)
+
 
     def set_pix(self, filename):
         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
         return pixbuf
 
+    
     def add_columns_to_treeview(self, treeview):
         #Column 0 for the treeview
         renderer = gtk.CellRendererPixbuf()
@@ -83,7 +94,6 @@ class mEveMonUI():
  
   
     def settings_clicked(self, button, window):
-   
         dialog = gtk.Dialog()
     
         #get the vbox to pack all the settings into
@@ -117,19 +127,19 @@ class mEveMonUI():
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
         help_button = dialog.add_button(gtk.STOCK_HELP, gtk.RESPONSE_HELP)
 
-
         dialog.show_all()
         result = dialog.run()
         if result == gtk.RESPONSE_OK:
             self.controller.set_api_key(apiEntry.get_text())
             self.controller.set_uid(uidEntry.get_text())
+            self.update_model(self.char_model)
         
         dialog.destroy()
 
         return result
 
-    def about_clicked(self, button):
     
+    def about_clicked(self, button):
         dialog = gtk.AboutDialog()
         dialog.set_website(self.about_website)
         dialog.set_website_label(self.about_website)
@@ -140,11 +150,12 @@ class mEveMonUI():
         dialog.run()
         dialog.destroy()
 
-    def refresh_clicked(self, button, window):
-        pass 
-
-    def create_menu(self, window):
     
+    def refresh_clicked(self, button, window):
+        self.update_model(self.char_model)
+
+    
+    def create_menu(self, window): 
         menu = hildon.AppMenu()
 
         for command in self.menu_items:
@@ -167,6 +178,7 @@ class mEveMonUI():
         menu.show_all()
 
         return menu
+
 
 if __name__ == "__main__":
     main()
