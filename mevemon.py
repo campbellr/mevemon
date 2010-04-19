@@ -43,7 +43,7 @@ class mEveMon():
     def set_auth(self):
         uid = self.get_uid()
         api_key = self.get_api_key()
-        cached_api = eveapi.EVEAPIConnection( cacheHandler = apicache.cache_handler( debug = False ) )
+        self.cached_api = eveapi.EVEAPIConnection( cacheHandler = apicache.cache_handler( debug = False ) )
 
         try:
             self.auth = cached_api.auth( userID = uid, apiKey = api_key )
@@ -58,6 +58,44 @@ class mEveMon():
 
     def get_auth(self):
         return self.auth
+
+    def get_char_sheet(self, charID):
+        try:
+            sheet = self.auth.character(charID).CharacterSheet()
+        except eveapi.Error, e:
+            # we should really have a logger that logs this error somewhere
+            return None
+
+        return sheet
+
+    def char_id2name(charID):
+        # the api can take a comma-seperated list of ids, but we'll just take
+        # a single id for now
+        try:
+            name = self.cached_api.eve.CharacterName(charID).characters[0].characterName
+        except eveapi.Error, e:
+            return None
+
+        return name
+
+    def char_name2id(name):
+        # the api can take a comma-seperated list of names, but we'll just take
+        # a single name for now
+        try:
+            char_id = self.cached_api.eve.CharacterID(name).characters[0].characterID
+        except eveapi.Error, e:
+            return None
+
+        return char_id
+
+    def get_account_balance(self, charID):
+        try:
+            wallet = auth.char.AccountBalance(charID)
+            isk = wallet.accounts[0].balance  # do we always want the first one??
+        except eveapi.Error, e:
+            return None
+
+        return isk
 
     # really quick hack to get character list. doesn't handle errors well, and
     # if it can't get the gconf settings it just returns the placeholders, when
@@ -74,10 +112,11 @@ class mEveMon():
             for character in api_char_list.characters:
                 ui_char_list.append( ( character.name, 
                     fetchimg.portrait_filename( character.characterID, 64 ) ) )
-            return ui_char_list
         # if not entered into gconf, error message --danny
         except eveapi.Error, e:
             return placeholder_chars
+
+        return ui_char_list
 
 if __name__ == "__main__":
     app = mEveMon()
