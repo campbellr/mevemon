@@ -56,6 +56,24 @@ class mEveMonUI():
         print treeview
         print path
         print view_column
+        win = hildon.StackableWindow()
+
+        model = treeview.get_model()
+        miter = model.get_iter(path)
+        
+        # column 0 is the portrait, column 1 is name
+
+        char_name = model.get_value(miter, 1)
+
+        win.set_title(char_name)
+        
+        label = gtk.Label("This is a subview with information about %s" % char_name)
+
+        vbox = gtk.VBox(False, 0)
+        vbox.pack_start(label, True, True, 0)
+
+        win.add(vbox)
+        win.show_all()
 
     
     def create_char_model(self):
