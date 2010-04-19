@@ -21,7 +21,6 @@ class mEveMonUI():
 
     def __init__(self, controller):
         self.controller = controller
-   
         gtk.set_application_name("mEveMon")
     
         #create the main window
@@ -52,11 +51,14 @@ class mEveMonUI():
         win.show_all()
 
     def build_window(self, treeview, path, view_column):
-        print "triggered treeview"
-        print treeview
-        print path
-        print view_column
         win = hildon.StackableWindow()
+
+        # Create menu
+        # NOTE: we probably want a window-specific menu for this page, but the
+        # main appmenu works for now
+        menu = self.create_menu(win)
+        # Attach menu to the window
+        win.set_app_menu(menu)
 
         model = treeview.get_model()
         miter = model.get_iter(path)
@@ -157,7 +159,9 @@ class mEveMonUI():
         if result == gtk.RESPONSE_OK:
             self.controller.set_api_key(apiEntry.get_text())
             self.controller.set_uid(uidEntry.get_text())
+            self.controller.set_auth()
             self.update_model(self.char_model)
+
         
         dialog.destroy()
 

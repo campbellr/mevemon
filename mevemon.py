@@ -17,8 +17,8 @@ class mEveMon():
     def __init__(self):
         self.program = hildon.Program()
         self.program.__init__()
-        self.config = None
         self.gconf = gnome.gconf.client_get_default()
+        self.set_auth()
         self.ui = ui.mEveMonUI(self)
 
     def run(self):
@@ -39,13 +39,14 @@ class mEveMon():
     def set_uid(self, uid):
         self.gconf.set_string("/apps/maemo/mevemon/eve_uid", uid)
 
-    def eveapi_connect(self):
+
+    def set_auth(self):
         uid = self.get_uid()
         api_key = self.get_api_key()
         cached_api = eveapi.EVEAPIConnection( cacheHandler = apicache.cache_handler( debug = False ) )
 
         try:
-            auth = cached_api.auth( userID = uid, apiKey = api_key )
+            self.auth = cached_api.auth( userID = uid, apiKey = api_key )
         except eveapi.Error, e:
             # if we can't, return the error message/pic --danny
             return None
@@ -55,17 +56,8 @@ class mEveMon():
             # apitest.py example... --danny
             raise
 
-        return auth
-
-    def get_alliances(self, charID):
-        auth = eveapi_connect()
-
-        if auth:
-            alliance_list = auth.character(charID)
-            
-
-
-        
+    def get_auth(self):
+        return self.auth
 
     # really quick hack to get character list. doesn't handle errors well, and
     # if it can't get the gconf settings it just returns the placeholders, when
@@ -76,10 +68,8 @@ class mEveMon():
         # error message --danny
         placeholder_chars = [("Please check your API settings.", "imgs/error.jpg")]
         
-        auth = self.eveapi_connect()
-
         try:
-            api_char_list = auth.account.Characters()
+            api_char_list = self.auth.account.Characters()
             # append each char we get to the list we'll return to the UI --danny
             for character in api_char_list.characters:
                 ui_char_list.append( ( character.name, 
