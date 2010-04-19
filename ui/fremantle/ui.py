@@ -38,6 +38,7 @@ class mEveMonUI():
         # gtk.HILDON_UI_MODE_NORMAL -> not selection in the treeview
         # gtk.HILDON_UI_MODE_EDIT -> selection in the treeview
         treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
+        treeview.connect('row-activated', self.build_window)
 
         self.char_model = self.create_char_model()
         treeview.set_model(self.char_model)
@@ -49,6 +50,12 @@ class mEveMonUI():
         win.add(pannable_area);
         
         win.show_all()
+
+    def build_window(self, treeview, path, view_column):
+        print "triggered treeview"
+        print treeview
+        print path
+        print view_column
 
     
     def create_char_model(self):
