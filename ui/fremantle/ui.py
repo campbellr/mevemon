@@ -70,8 +70,13 @@ class mEveMonUI():
         win.set_title(char_name)
         
         label = gtk.Label("This is a subview with information about %s" % char_name)
+        portrait = gtk.Image()
+        portrait.set_from_file(self.controller.get_portrait(char_name, 256))
+        portrait.show()
+
 
         vbox = gtk.VBox(False, 0)
+        vbox.pack_start(portrait, True, True, 0)
         vbox.pack_start(label, True, True, 0)
 
         win.add(vbox)

@@ -46,7 +46,7 @@ class mEveMon():
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = apicache.cache_handler( debug = False ) )
 
         try:
-            self.auth = cached_api.auth( userID = uid, apiKey = api_key )
+            self.auth = self.cached_api.auth( userID = uid, apiKey = api_key )
         except eveapi.Error, e:
             # if we can't, return the error message/pic --danny
             return None
@@ -68,7 +68,7 @@ class mEveMon():
 
         return sheet
 
-    def char_id2name(charID):
+    def char_id2name(self, charID):
         # the api can take a comma-seperated list of ids, but we'll just take
         # a single id for now
         try:
@@ -78,7 +78,7 @@ class mEveMon():
 
         return name
 
-    def char_name2id(name):
+    def char_name2id(self, name):
         # the api can take a comma-seperated list of names, but we'll just take
         # a single name for now
         try:
@@ -117,6 +117,13 @@ class mEveMon():
             return placeholder_chars
 
         return ui_char_list
+
+    def get_portrait(self, char_name, size):
+        """
+        returns the relative path of the retrieved portrait
+        """
+        charID = self.char_name2id(char_name)
+        return fetchimg.portrait_filename(charID, size)
 
 if __name__ == "__main__":
     app = mEveMon()
