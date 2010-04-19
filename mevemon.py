@@ -72,7 +72,7 @@ class mEveMon():
         # the api can take a comma-seperated list of ids, but we'll just take
         # a single id for now
         try:
-            name = self.cached_api.eve.CharacterName(charID).characters[0].characterName
+            name = self.cached_api.eve.CharacterName(ids=charID).characters[0].characterName
         except eveapi.Error, e:
             return None
 
@@ -82,7 +82,7 @@ class mEveMon():
         # the api can take a comma-seperated list of names, but we'll just take
         # a single name for now
         try:
-            char_id = self.cached_api.eve.CharacterID(name).characters[0].characterID
+            char_id = self.cached_api.eve.CharacterID(names=name).characters[0].characterID
         except eveapi.Error, e:
             return None
 
