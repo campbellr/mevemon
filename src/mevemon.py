@@ -141,6 +141,15 @@ class mEveMon():
         charID = self.char_name2id(char_name)
         return fetchimg.portrait_filename(charID, size)
 
+    def get_skill_tree(self):
+        try:
+            tree = self.cached_api.eve.SkillTree()
+        except eveapi.Error, e:
+            print e
+            return None
+        
+        return tree
+
 if __name__ == "__main__":
     app = mEveMon()
     app.run()

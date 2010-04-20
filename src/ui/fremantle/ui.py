@@ -68,6 +68,8 @@ class mEveMonUI():
         hildon.hildon_gtk_window_set_progress_indicator(win, 0)
 
     def build_window(self, treeview, path, view_column):
+        # TODO: this is a really long and ugly function, split it up somehow
+
         win = hildon.StackableWindow()
         win.show_all() 
         hildon.hildon_gtk_window_set_progress_indicator(win, 1)
@@ -129,10 +131,66 @@ class mEveMonUI():
         vbox.pack_start(hbox, False, False, 0)
         vbox.pack_start(skillLabel, False, False, 5)
 
+        skills_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
+        
+        skills_model = self.create_skills_model(sheet)
+        skills_treeview.set_model(skills_model)
+
+        self.add_columns_to_skills_view(skills_treeview)
+
+        vbox.pack_start(skills_treeview, False, False, 0)
+
         win.add(pannable_area)
         win.show_all()
 
         hildon.hildon_gtk_window_set_progress_indicator(win, 0)
+
+    def add_columns_to_skills_view(self, treeview):
+        #Column 0 for the treeview
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('Skill Name', renderer, text=0)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+        
+        #Column 1 for the treeview
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('Skill Info', renderer, text=1)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+
+    def create_skills_model(self, sheet):
+   
+        lstore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
+
+        skilltree = self.controller.get_skill_tree()
+       
+        sp = [0, 250, 1414, 8000, 45255, 256000]
+
+        for g in skilltree.skillGroups:
+
+            skills_trained_in_this_group = False
+
+            for skill in g.skills:
+
+                trained = sheet.skills.Get(skill.typeID, False)
+                
+                if trained:
+
+                    if not skills_trained_in_this_group:
+
+                        #TODO: add as a heading/category
+                        skills_trained_in_this_group = True
+                    
+                    # add row for this skill
+                    liter = lstore.append()
+                    lstore.set(liter, 0, "%s (Rank %d)" % (skill.typeName, skill.rank),
+                                      1, "SP: %d Level %d" %
+                                                 (trained.skillpoints,
+                                                  trained.level))
+
+
+        return lstore
+
 
     def create_char_model(self):
         lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
@@ -171,7 +229,7 @@ class mEveMonUI():
 
         #Column 1 for the treeview
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('title', renderer, text=1)
+        column = gtk.TreeViewColumn('Character Name', renderer, text=1)
         column.set_property("expand", True)
         treeview.append_column(column)
  
