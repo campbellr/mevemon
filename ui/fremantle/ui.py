@@ -26,6 +26,8 @@ class mEveMonUI():
         #create the main window
         win = hildon.StackableWindow()
         win.connect("destroy", self.controller.quit)
+        win.show_all()
+        hildon.hildon_gtk_window_set_progress_indicator(win, 1)
 
         # Create menu
         menu = self.create_menu(win)
@@ -50,8 +52,12 @@ class mEveMonUI():
         
         win.show_all()
 
+        hildon.hildon_gtk_window_set_progress_indicator(win, 0)
+
     def build_window(self, treeview, path, view_column):
         win = hildon.StackableWindow()
+        win.show_all() 
+        hildon.hildon_gtk_window_set_progress_indicator(win, 1)
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
@@ -116,6 +122,7 @@ class mEveMonUI():
         win.add(vbox)
         win.show_all()
 
+        hildon.hildon_gtk_window_set_progress_indicator(win, 0)
 
     def create_char_model(self):
         lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
