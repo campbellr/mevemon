@@ -19,15 +19,14 @@ def portrait_filename( char_id, img_size ):
         return filename
 
     # specify size and cid --danny
+    img_url = "http://img.eve.is/serv.asp?s=%s&c=%s" % ( str( img_size ), char_id )
+
+    # fetch it, and hit the road. --danny
     try:
-        img_url = "http://img.eve.is/serv.asp?s=%s&c=%s" % ( str( img_size ), char_id )
-        img = urllib.urlopen( img_url ).read()
-    except IOError:
-        return err_img
-
-    # write it, and hit the road. --danny
-
-    fp = open( filename, 'w' )
-    fp.write( img )
-    fp.close()
+        urllib.urlretrieve( img_url, filename, report_handler )
+    except ContentTooShortError:
+        filename = err_img
     return filename
+
+def report_handler( *a ):
+    ( blocks_transferred, block_size, total_size ) = a

@@ -25,6 +25,9 @@ class mEveMonUI():
         # create the main window
         win = hildon.Window()
         win.connect("destroy", self.controller.quit)
+        win.show_all()
+        progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading overview...")
+        progress_bar.set_fraction( 0.4 )
 
         # Create menu
         menu = self.create_menu(win)
@@ -40,11 +43,16 @@ class mEveMonUI():
 
         win.add(treeview)
         win.show_all()
+
+        progress_bar.set_fraction( 1 )
+        progress_bar.destroy()
   
     def build_window(self, treeview, path, view_column):
         win = hildon.Window()
         win.show_all() 
-        #hildon.hildon_gtk_window_set_progress_indicator(win, 1)
+
+        progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading character sheet...")
+        progress_bar.set_fraction( 0.4 )
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
@@ -109,7 +117,8 @@ class mEveMonUI():
         win.add(vbox)
         win.show_all()
 
-        #hildon.hildon_gtk_window_set_progress_indicator(win, 0)
+        progress_bar.set_fraction( 1 )
+        progress_bar.destroy()
 
     def create_char_model(self):
         lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
@@ -119,8 +128,6 @@ class mEveMonUI():
 
     def fill_char_model(self, lstore):
         char_list = self.controller.get_characters()
-        #char_list = [("Character 1", "avatar.png"), ("Character 2", "avatar.png")]
-
         for name, icon in char_list:
             liter = lstore.append()
             lstore.set(liter, 1, name, 0, self.set_pix(icon))
