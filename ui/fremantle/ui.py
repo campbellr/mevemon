@@ -66,7 +66,7 @@ class mEveMonUI():
         # Attach menu to the window
         win.set_app_menu(menu)
 
-        #pannable_area = hildon.PannableArea()
+        pannable_area = hildon.PannableArea()
 
         model = treeview.get_model()
         miter = model.get_iter(path)
@@ -75,27 +75,24 @@ class mEveMonUI():
 
         char_name = model.get_value(miter, 1)
         char_id = self.controller.char_name2id(char_name)
+        sheet = self.controller.get_char_sheet(char_id)
 
         win.set_title(char_name)
         
         skillLabel = gtk.Label("Skills")
 
-        # TODO: replace these with api calls
-        corp_name = ""
-        skill_points = 0
-
-        name = gtk.Label("Name: %s" % char_name)
+        name = gtk.Label("%s" % char_name)
         name.set_alignment(0, 0.5)
 
-        corp = gtk.Label("Corp: %s" % corp_name)
+        race = gtk.Label("%s %s %s" % (sheet.gender, sheet.race,
+            sheet.bloodLine))
+        race.set_alignment(0, 0.5)
+        
+        corp = gtk.Label("Corp: %s" % sheet.corporationName)
         corp.set_alignment(0, 0.5)
 
-        balance = gtk.Label("Balance: %s ISK" % 
-                self.controller.get_account_balance(char_id))
+        balance = gtk.Label("Balance: %s ISK" % sheet.balance)
         balance.set_alignment(0, 0.5)
-
-        sp = gtk.Label("Skill points: %s" % skill_points)
-        sp.set_alignment(0, 0.5)
 
         portrait = gtk.Image()
         portrait.set_from_file(self.controller.get_portrait(char_name, 256))
@@ -105,21 +102,21 @@ class mEveMonUI():
 
         info_vbox = gtk.VBox(False, 0)
         info_vbox.pack_start(name, False, False, 1)
+        info_vbox.pack_start(race, False, False, 1)
         info_vbox.pack_start(corp, False, False, 1)
         info_vbox.pack_start(balance, False, False, 1)
-        info_vbox.pack_start(sp, False, False, 1)
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
         #hbox.pack_start(stats_vbox, False, False, 5)
         
         vbox = gtk.VBox(False, 0)
-        #pannable_area.add(vbox)
+        pannable_area.add_with_viewport(vbox)
 
         vbox.pack_start(hbox, False, False, 0)
         vbox.pack_start(skillLabel, False, False, 5)
 
-        win.add(vbox)
+        win.add(pannable_area)
         win.show_all()
 
         hildon.hildon_gtk_window_set_progress_indicator(win, 0)
