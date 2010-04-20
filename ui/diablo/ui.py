@@ -22,13 +22,13 @@ class mEveMonUI():
    
         gtk.set_application_name("mEveMon")
     
-        # create the main window, changing from StackableWindow() --danny
+        # create the main window
         win = hildon.Window()
         win.connect("destroy", self.controller.quit)
 
         # Create menu
         menu = self.create_menu(win)
-        # Attach menu to the window, changed from set_app_menu() --danny
+        # Attach menu to the window
         win.set_menu(menu)
 
         # will probably need to refer to http://maemo.org/community/maemo-developers/gtktreeview_issue/ for sample code again when we make these clickable --danny
@@ -113,11 +113,8 @@ class mEveMonUI():
 
     def create_char_model(self):
         lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
-
         #get icon and name and put in a liststore
-
         self.fill_char_model(lstore)
-
         return lstore
 
     def fill_char_model(self, lstore):
@@ -165,7 +162,6 @@ class mEveMonUI():
         uidLabel.set_justify(gtk.JUSTIFY_LEFT)
         vbox.add(uidLabel)
         
-        # had to remove placeholder stuff --danny
         uidEntry = gtk.Entry()
         uidEntry.set_text(self.controller.get_uid())
         uidEntry.set_property('is_focus', False)
@@ -176,7 +172,6 @@ class mEveMonUI():
         apiLabel.set_justify(gtk.JUSTIFY_LEFT)
         vbox.add(apiLabel)
         
-        # had to remove placeholder stuff --danny
         apiEntry = gtk.Entry()
         apiEntry.set_text(self.controller.get_api_key())
         apiEntry.set_property('is_focus', False)
@@ -215,14 +210,9 @@ class mEveMonUI():
         self.update_model(self.char_model)
   
     def create_menu(self, window):
-    
-        # changed from hildon.AppMenu --danny
         menu = gtk.Menu()
-
         for command in self.menu_items:
-            # Create menu entries, changed from hildon.GtkButton() --danny
             button = gtk.MenuItem( command )
-
             if command == "About":
                 button.connect("activate", self.about_clicked)
             elif command == "Settings":
@@ -231,12 +221,9 @@ class mEveMonUI():
                 button.connect("activate", self.refresh_clicked, window)
             else:
                 assert False, command
-
             # Add entry to the view menu
             menu.append(button)
-        
         menu.show_all()
-
         return menu
 
 if __name__ == "__main__":

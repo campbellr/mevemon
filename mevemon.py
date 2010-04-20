@@ -41,26 +41,29 @@ class mEveMon():
 
 
     def set_auth(self):
+        """
+        set self.auth to None if there was a problem. somehow later on we'll
+        have to pass the error to the UI, but for now I just want the program
+        to not be broken. --danny
+        """
         uid = self.get_uid()
         api_key = self.get_api_key()
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
                 apicache.cache_handler( debug = False ) )
-
         try:
             self.auth = self.cached_api.auth( userID = uid, apiKey = api_key )
         except eveapi.Error, e:
-            # if we can't, return the error message/pic --danny
-            return None
-        except Exception, e:
-            # unknown exception, dunno if this needs to be here if I just
-            # ignore it... probably a bad idea, but it was in the 
-            # apitest.py example... --danny
+            # we need to deal with this, so raise --danny
             raise
+        except ValueError, e:
+            self.auth = None
+            #raise
 
     def get_auth(self):
         return self.auth
 
     def get_char_sheet(self, charID):
+        if not self.auth: return None
         try:
             sheet = self.auth.character(charID).CharacterSheet()
         except eveapi.Error, e:
@@ -92,6 +95,7 @@ class mEveMon():
         return char_id
 
     def get_account_balance(self, charID):
+        if not self.auth: return None
         try:
             wallet = self.auth.char.AccountBalance(CharacterID=charID)
             isk = wallet.accounts[0].balance  # do we always want the first one??
@@ -101,24 +105,23 @@ class mEveMon():
 
         return isk
 
-    # really quick hack to get character list. doesn't handle errors well, and
-    # if it can't get the gconf settings it just returns the placeholders, when
-    # in reality it should tell the UI or something. basically half finished,
-    # just uploading to show ry... FIXME --danny
     def get_characters( self ):
+        """
+        returns a list containing a single character with an error message for a
+        name, if there's a problem. FIXME --danny
+        """
         ui_char_list = []
-        # error message --danny
         placeholder_chars = [("Please check your API settings.", "imgs/error.jpg")]
-        
+        if not self.auth: return placeholder_chars
         try:
             api_char_list = self.auth.account.Characters()
-            # append each char we get to the list we'll return to the UI --danny
+            # append each char we get to the list we'll return to the
+            # UI --danny
             for character in api_char_list.characters:
-                ui_char_list.append( ( character.name, 
-                    fetchimg.portrait_filename( character.characterID, 64 ) ) )
-        # if not entered into gconf, error message --danny
+                ui_char_list.append( ( character.name, fetchimg.portrait_filename( character.characterID, 64 ) ) )
         except eveapi.Error, e:
-            return placeholder_chars
+            # again, we need to handle this... --danny
+            raise
 
         return ui_char_list
 
