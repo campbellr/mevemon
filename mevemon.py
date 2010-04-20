@@ -43,7 +43,8 @@ class mEveMon():
     def set_auth(self):
         uid = self.get_uid()
         api_key = self.get_api_key()
-        self.cached_api = eveapi.EVEAPIConnection( cacheHandler = apicache.cache_handler( debug = False ) )
+        self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
+                apicache.cache_handler( debug = False ) )
 
         try:
             self.auth = self.cached_api.auth( userID = uid, apiKey = api_key )
@@ -72,7 +73,8 @@ class mEveMon():
         # the api can take a comma-seperated list of ids, but we'll just take
         # a single id for now
         try:
-            name = self.cached_api.eve.CharacterName(ids=charID).characters[0].characterName
+            chars = self.cached_api.eve.CharacterName(ids=charID).characters
+            name = chars[0].characterName
         except eveapi.Error, e:
             return None
 
@@ -82,7 +84,8 @@ class mEveMon():
         # the api can take a comma-seperated list of names, but we'll just take
         # a single name for now
         try:
-            char_id = self.cached_api.eve.CharacterID(names=name).characters[0].characterID
+            chars = self.cached_api.eve.CharacterID(names=name).characters
+            char_id = chars[0].characterID
         except eveapi.Error, e:
             return None
 
