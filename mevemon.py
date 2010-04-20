@@ -93,9 +93,10 @@ class mEveMon():
 
     def get_account_balance(self, charID):
         try:
-            wallet = auth.char.AccountBalance(charID)
+            wallet = self.auth.char.AccountBalance(CharacterID=charID)
             isk = wallet.accounts[0].balance  # do we always want the first one??
         except eveapi.Error, e:
+            print e
             return None
 
         return isk
