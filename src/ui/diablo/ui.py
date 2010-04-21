@@ -51,7 +51,6 @@ class mEveMonUI():
         # Attach menu to the window
         win.set_menu(menu)
 
-        # will probably need to refer to http://maemo.org/community/maemo-developers/gtktreeview_issue/ for sample code again when we make these clickable --danny
         self.char_model = self.create_char_model()
         treeview = gtk.TreeView( model = self.char_model )
         treeview.connect( 'row-activated', self.build_window )
@@ -93,10 +92,6 @@ class mEveMonUI():
         
         skillLabel = gtk.Label("Skills")
 
-        # TODO: replace these with api calls
-        corp_name = ""
-        skill_points = 0
-
         name = gtk.Label("Name: %s" % char_name)
         name.set_alignment(0, 0.5)
 
@@ -110,7 +105,6 @@ class mEveMonUI():
         balance = gtk.Label("Balance: %s ISK" % sheet.balance)
         balance.set_alignment(0, 0.5)
 
-        # attributes need to be lower. --danny
         intel = gtk.Label("Intelligence: %d" % sheet.attributes.intelligence)
         intel.set_alignment(0, 0.5)
         mem = gtk.Label("Memory: %d" % sheet.attributes.memory)
@@ -138,7 +132,6 @@ class mEveMonUI():
 
         info_vbox.pack_start(blank_label, False, False, 1)
 
-        #stats_vbox = gtk.VBox(False, 0)
         info_vbox.pack_start(intel, False, False, 1)
         info_vbox.pack_start(mem, False, False, 1)
         info_vbox.pack_start(char, False, False, 1)
@@ -147,15 +140,12 @@ class mEveMonUI():
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
-        #hbox.pack_start(stats_vbox, False, False, 5)
         
         vbox = gtk.VBox(False, 0)
-        #pannable_area.add(vbox)
 
         vbox.pack_start(hbox, False, False, 0)
         vbox.pack_start(skillLabel, False, False, 5)
 
-        # need to make scrollable --danny
         skills_model = self.create_skills_model(sheet)
         skills_treeview = gtk.TreeView( model = skills_model )
         skills_treeview.set_model(skills_model)
