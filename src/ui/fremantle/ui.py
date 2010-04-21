@@ -32,7 +32,6 @@ class BaseUI():
 
     menu_items = ("Settings", "About", "Refresh")
 
-
     def create_menu(self, window): 
         menu = hildon.AppMenu()
 
@@ -119,6 +118,16 @@ class BaseUI():
         dialog.set_version(self.app_version)
         dialog.run()
         dialog.destroy()
+
+    def add_label(self, text, box, markup=True, align="left"):
+        label = gtk.Label(text)
+        if markup:
+            label.set_use_markup(True)
+        if align == "left":
+            label.set_alignment(0, 0.5)
+
+        box.pack_start(label, False, False, 1)
+
 
 class mEveMonUI(BaseUI):
 
@@ -228,96 +237,67 @@ class CharacterSheetUI(BaseUI):
         miter = model.get_iter(path)
         
         # column 0 is the portrait, column 1 is name
-
         char_name = model.get_value(miter, 1)
         char_id = self.controller.char_name2id(char_name)
         sheet = self.controller.get_char_sheet(char_id)
 
         win.set_title(char_name)
-        
-        skillLabel = gtk.Label("<big>Skills</big>")
-        skillLabel.set_use_markup(True)
-        
-        #there has got to be a better way to have empty space...
-        emptyLabel = gtk.Label("")
 
-        name = gtk.Label("<big><big>%s</big></big>" % char_name)
-        name.set_use_markup(True)
-        name.set_alignment(0, 0.5)
 
-        race = gtk.Label("<small>%s %s %s</small>" % (sheet.gender, sheet.race,
-            sheet.bloodLine))
-        race.set_use_markup(True)
-        race.set_alignment(0, 0.5)
-        
-        corp = gtk.Label("<small><b>Corp:</b> %s</small>" % sheet.corporationName)
-        corp.set_use_markup(True)
-        corp.set_alignment(0, 0.5)
-
-        balance = gtk.Label("<small><b>Balance:</b> %s ISK</small>" % sheet.balance)
-        balance.set_use_markup(True)
-        balance.set_alignment(0, 0.5)
-
-        intel = gtk.Label("<small><b>Intelligence:</b> %d</small>" % sheet.attributes.intelligence)
-        intel.set_use_markup(True)
-        intel.set_alignment(0, 0.5)
-        mem = gtk.Label("<small><b>Memory:</b> %d</small>" % sheet.attributes.memory)
-        mem.set_use_markup(True)
-        mem.set_alignment(0, 0.5)
-        char = gtk.Label("<small><b>Charisma:</b> %d</small>" % sheet.attributes.charisma)
-        char.set_use_markup(True)
-        char.set_alignment(0, 0.5)
-        percep = gtk.Label("<small><b>Perception:</b> %d</small>" % sheet.attributes.perception)
-        percep.set_use_markup(True)
-        percep.set_alignment(0, 0.5)
-        wp = gtk.Label("<small><b>Willpower:</b> %d</small>" % sheet.attributes.willpower)
-        wp.set_use_markup(True)
-        wp.set_alignment(0, 0.5)
+        hbox = gtk.HBox(False, 0)
+        info_vbox = gtk.VBox(False, 0)
+        stats_vbox = gtk.VBox(False, 0)
 
         portrait = gtk.Image()
         portrait.set_from_file(self.controller.get_portrait(char_name, 256))
         portrait.show()
-        
-        hbox = gtk.HBox(False, 0)
-
-        info_vbox = gtk.VBox(False, 0)
-        info_vbox.pack_start(name, False, False, 1)
-        info_vbox.pack_start(race, False, False, 1)
-        info_vbox.pack_start(emptyLabel, False, False, 1)
-        info_vbox.pack_start(corp, False, False, 1)
-        info_vbox.pack_start(balance, False, False, 1)
-
-        stats_vbox = gtk.VBox(False, 1)
-        stats_vbox.pack_start(intel, False, False, 1)
-        stats_vbox.pack_start(mem, False, False, 1)
-        stats_vbox.pack_start(char, False, False, 1)
-        stats_vbox.pack_start(percep, False, False, 1)
-        stats_vbox.pack_start(wp, False, False, 1)
-
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
         hbox.pack_start(stats_vbox, False, False, 15)
-        
+
         vbox = gtk.VBox(False, 0)
         pannable_area.add_with_viewport(vbox)
 
         vbox.pack_start(hbox, False, False, 0)
-        vbox.pack_start(skillLabel, False, False, 5)
+
+        self.fill_info(info_vbox, sheet)
+        
+        self.fill_stats(stats_vbox, sheet)
+
+        self.add_label("<big>Skills</big>", vbox, align="normal")
+
+        win.show_all()
 
         skills_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
-        
         skills_model = self.create_skills_model(sheet)
         skills_treeview.set_model(skills_model)
-
         self.add_columns_to_skills_view(skills_treeview)
-
         vbox.pack_start(skills_treeview, False, False, 0)
 
         win.add(pannable_area)
         win.show_all()
 
         hildon.hildon_gtk_window_set_progress_indicator(win, 0)
+
+    def fill_info(self, box, sheet):
+        self.add_label("<big><big>%s</big></big>" % sheet.name, box)
+        self.add_label("<small>%s %s %s</small>" % (sheet.gender, sheet.race, sheet.bloodLine), box)
+        self.add_label("", box, markup=False)
+        self.add_label("<small><b>Corp:</b> %s</small>" % sheet.corporationName, box)
+        self.add_label("<small><b>Balance:</b> %s ISK</small>" % sheet.balance, box)
+
+
+    def fill_stats(self, box, sheet):
+        self.add_label("", box, markup=False)
+        self.add_label("", box, markup=False)
+        self.add_label("", box, markup=False)
+        self.add_label("<small><b>Intelligence:</b> %d</small>" % sheet.attributes.intelligence, box)
+        self.add_label("<small><b>Memory:</b> %d</small>" % sheet.attributes.memory, box)
+        self.add_label("<small><b>Charisma:</b> %d</small>" % sheet.attributes.charisma, box)
+        self.add_label("<small><b>Perception:</b> %d</small>" % sheet.attributes.perception, box)
+        self.add_label("<small><b>Willpower:</b> %d</small>" % sheet.attributes.willpower, box)
+
 
     def add_columns_to_skills_view(self, treeview):
         #Column 0 for the treeview
