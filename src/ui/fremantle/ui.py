@@ -215,6 +215,7 @@ class CharacterSheetUI(BaseUI):
     
     def __init__(self, controller):
         self.controller = controller
+        self.sheet = None
 
 
     def build_window(self, treeview, path, view_column):
@@ -239,7 +240,7 @@ class CharacterSheetUI(BaseUI):
         # column 0 is the portrait, column 1 is name
         char_name = model.get_value(miter, 1)
         char_id = self.controller.char_name2id(char_name)
-        sheet = self.controller.get_char_sheet(char_id)
+        self.sheet = self.controller.get_char_sheet(char_id)
 
         win.set_title(char_name)
 
@@ -261,42 +262,42 @@ class CharacterSheetUI(BaseUI):
 
         vbox.pack_start(hbox, False, False, 0)
 
-        self.fill_info(info_vbox, sheet)
+        self.fill_info(info_vbox)
         
-        self.fill_stats(stats_vbox, sheet)
+        self.fill_stats(stats_vbox)
 
         self.add_label("<big>Skills</big>", vbox, align="normal")
 
         win.show_all()
 
         skills_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
-        skills_model = self.create_skills_model(sheet)
-        skills_treeview.set_model(skills_model)
+        self.skills_model = self.create_skills_model()
+        skills_treeview.set_model(self.skills_model)
         self.add_columns_to_skills_view(skills_treeview)
-        vbox.pack_start(skills_treeview, False, False, 0)
+        vbox.pack_start(skills_treeview, False, False, 1)
 
         win.add(pannable_area)
         win.show_all()
 
         hildon.hildon_gtk_window_set_progress_indicator(win, 0)
 
-    def fill_info(self, box, sheet):
-        self.add_label("<big><big>%s</big></big>" % sheet.name, box)
-        self.add_label("<small>%s %s %s</small>" % (sheet.gender, sheet.race, sheet.bloodLine), box)
+    def fill_info(self, box):
+        self.add_label("<big><big>%s</big></big>" % self.sheet.name, box)
+        self.add_label("<small>%s %s %s</small>" % (self.sheet.gender, self.sheet.race, self.sheet.bloodLine), box)
         self.add_label("", box, markup=False)
-        self.add_label("<small><b>Corp:</b> %s</small>" % sheet.corporationName, box)
-        self.add_label("<small><b>Balance:</b> %s ISK</small>" % sheet.balance, box)
+        self.add_label("<small><b>Corp:</b> %s</small>" % self.sheet.corporationName, box)
+        self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
 
 
-    def fill_stats(self, box, sheet):
+    def fill_stats(self, box):
         self.add_label("", box, markup=False)
         self.add_label("", box, markup=False)
         self.add_label("", box, markup=False)
-        self.add_label("<small><b>Intelligence:</b> %d</small>" % sheet.attributes.intelligence, box)
-        self.add_label("<small><b>Memory:</b> %d</small>" % sheet.attributes.memory, box)
-        self.add_label("<small><b>Charisma:</b> %d</small>" % sheet.attributes.charisma, box)
-        self.add_label("<small><b>Perception:</b> %d</small>" % sheet.attributes.perception, box)
-        self.add_label("<small><b>Willpower:</b> %d</small>" % sheet.attributes.willpower, box)
+        self.add_label("<small><b>Intelligence: </b>%d</small>" % self.sheet.attributes.intelligence, box)
+        self.add_label("<small><b>Memory:</b>\t%d</small>" % self.sheet.attributes.memory, box)
+        self.add_label("<small><b>Charisma:</b>\t%d</small>" % self.sheet.attributes.charisma, box)
+        self.add_label("<small><b>Perception:</b>\t%d</small>" % self.sheet.attributes.perception, box)
+        self.add_label("<small><b>Willpower:</b>\t%d</small>" % self.sheet.attributes.willpower, box)
 
 
     def add_columns_to_skills_view(self, treeview):
@@ -312,10 +313,17 @@ class CharacterSheetUI(BaseUI):
         column.set_property("expand", True)
         treeview.append_column(column)
 
-    def create_skills_model(self, sheet):
+
+    def create_skills_model(self):
    
         lstore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
+        
+        self.fill_skills_model(lstore)
+    
+        return lstore
 
+    
+    def fill_skills_model(self, lstore):
         skilltree = self.controller.get_skill_tree()
        
         sp = [0, 250, 1414, 8000, 45255, 256000]
@@ -326,7 +334,7 @@ class CharacterSheetUI(BaseUI):
 
             for skill in g.skills:
 
-                trained = sheet.skills.Get(skill.typeID, False)
+                trained = self.sheet.skills.Get(skill.typeID, False)
                 
                 if trained:
 
@@ -343,11 +351,14 @@ class CharacterSheetUI(BaseUI):
                                                   trained.level))
 
 
-        return lstore
+    
+    def update_model(self, lstore):
+        lstore.clear()
+        self.fill_skills_model(lstore)
 
 
     def refresh_clicked(self, button, window):
-        #self.update_model(self.char_model)
+        self.update_model(self.skills_model)
         pass
 
 if __name__ == "__main__":
