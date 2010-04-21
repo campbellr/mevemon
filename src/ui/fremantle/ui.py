@@ -119,14 +119,14 @@ class BaseUI():
         dialog.run()
         dialog.destroy()
 
-    def add_label(self, text, box, markup=True, align="left"):
+    def add_label(self, text, box, markup=True, align="left", padding=1):
         label = gtk.Label(text)
         if markup:
             label.set_use_markup(True)
         if align == "left":
             label.set_alignment(0, 0.5)
 
-        box.pack_start(label, False, False, 1)
+        box.pack_start(label, False, False, padding)
 
 
 class mEveMonUI(BaseUI):
@@ -267,8 +267,29 @@ class CharacterSheetUI(BaseUI):
         self.fill_info(info_vbox)
         
         self.fill_stats(stats_vbox)
+        
+        self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
+        skill = self.controller.get_skill_in_training(self.char_id)
+        
+        if skill.skillInTraining:
 
-        self.add_label("<big>Skills</big>", vbox, align="normal")
+            skilltree = self.controller.get_skill_tree()
+            
+            # I'm assuming that we will always find a skill with the skill ID
+            for group in skilltree.skillGroups:
+                found_skill = group.skills.Get(skill.trainingTypeID, False)
+                if found_skill:
+                    skill_name = found_skill.typeName
+                    break
+                
+            self.add_label("%s <small>(Level %d)</small>" % (skill_name, skill.trainingToLevel),
+                    vbox, align="normal")
+            self.add_label("<small>start time: %s\t\tend time: %s</small>" %(skill.trainingStartTime,
+                skill.trainingEndTime), vbox, align="normal")
+        else:
+            self.add_label("<small>No skills are currently being trained</small>", vbox, align="normal")
+
+        self.add_label("<big>Skills:</big>", vbox, align="normal")
 
         win.show_all()
 

@@ -150,6 +150,16 @@ class mEveMon():
         
         return tree
 
+    def get_skill_in_training(self, charID):
+        try:
+            skill = self.auth.character(charID).SkillInTraining()
+        except:
+            print e
+            return None
+
+        return skill
+
+
 if __name__ == "__main__":
     app = mEveMon()
     app.run()
