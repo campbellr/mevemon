@@ -100,14 +100,29 @@ class mEveMonUI():
         name = gtk.Label("Name: %s" % char_name)
         name.set_alignment(0, 0.5)
 
-        corp = gtk.Label("Corp: %s" % corp_name)
+        race = gtk.Label("%s %s %s" % (sheet.gender, sheet.race,
+                                       sheet.bloodLine))
+        race.set_alignment(0, 0.5)
+        
+        corp = gtk.Label("Corp: %s" % sheet.corporationName)
         corp.set_alignment(0, 0.5)
-
-        balance = gtk.Label("Balance: %s ISK" % sheet.balance )
+        
+        balance = gtk.Label("Balance: %s ISK" % sheet.balance)
         balance.set_alignment(0, 0.5)
 
-        sp = gtk.Label("Skill points: %s" % skill_points)
-        sp.set_alignment(0, 0.5)
+        # attributes need to be lower. --danny
+        intel = gtk.Label("Intelligence: %d" % sheet.attributes.intelligence)
+        intel.set_alignment(0, 0.5)
+        mem = gtk.Label("Memory: %d" % sheet.attributes.memory)
+        mem.set_alignment(0, 0.5)
+        char = gtk.Label("Charisma: %d" % sheet.attributes.charisma)
+        char.set_alignment(0, 0.5)
+        percep = gtk.Label("Perception: %d" % sheet.attributes.perception)
+        percep.set_alignment(0, 0.5)
+        wp = gtk.Label("Willpower: %d" % sheet.attributes.willpower)
+        wp.set_alignment(0, 0.5)
+        blank_label = gtk.Label('')
+        blank_label.set_alignment(0, 0.5)
 
         portrait = gtk.Image()
         portrait.set_from_file(self.controller.get_portrait(char_name, 256))
@@ -117,9 +132,18 @@ class mEveMonUI():
 
         info_vbox = gtk.VBox(False, 0)
         info_vbox.pack_start(name, False, False, 1)
+        info_vbox.pack_start(race, False, False, 1)
         info_vbox.pack_start(corp, False, False, 1)
         info_vbox.pack_start(balance, False, False, 1)
-        info_vbox.pack_start(sp, False, False, 1)
+
+        info_vbox.pack_start(blank_label, False, False, 1)
+
+        #stats_vbox = gtk.VBox(False, 0)
+        info_vbox.pack_start(intel, False, False, 1)
+        info_vbox.pack_start(mem, False, False, 1)
+        info_vbox.pack_start(char, False, False, 1)
+        info_vbox.pack_start(percep, False, False, 1)
+        info_vbox.pack_start(wp, False, False, 1)
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
