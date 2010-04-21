@@ -58,7 +58,7 @@ class mEveMonUI():
         treeview.set_model(self.char_model)
         self.add_columns_to_treeview(treeview)
 
-        win.add(treeview)
+        win.add_with_scrollbar(treeview)
         win.show_all()
 
         progress_bar.set_fraction( 1 )
@@ -139,7 +139,7 @@ class mEveMonUI():
 
         vbox.pack_start(skills_treeview, False, False, 0)
 
-        win.add(vbox)
+        win.add_with_scrollbar(vbox)
         win.show_all()
 
         progress_bar.set_fraction( 1 )
