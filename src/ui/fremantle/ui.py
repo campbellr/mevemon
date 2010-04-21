@@ -94,30 +94,43 @@ class mEveMonUI():
 
         win.set_title(char_name)
         
-        skillLabel = gtk.Label("Skills")
+        skillLabel = gtk.Label("<big>Skills</big>")
+        skillLabel.set_use_markup(True)
+        
+        #there has got to be a better way to have empty space...
+        emptyLabel = gtk.Label("")
 
-        name = gtk.Label("%s" % char_name)
+        name = gtk.Label("<big><big>%s</big></big>" % char_name)
+        name.set_use_markup(True)
         name.set_alignment(0, 0.5)
 
-        race = gtk.Label("%s %s %s" % (sheet.gender, sheet.race,
+        race = gtk.Label("<small>%s %s %s</small>" % (sheet.gender, sheet.race,
             sheet.bloodLine))
+        race.set_use_markup(True)
         race.set_alignment(0, 0.5)
         
-        corp = gtk.Label("Corp: %s" % sheet.corporationName)
+        corp = gtk.Label("<small><b>Corp:</b> %s</small>" % sheet.corporationName)
+        corp.set_use_markup(True)
         corp.set_alignment(0, 0.5)
 
-        balance = gtk.Label("Balance: %s ISK" % sheet.balance)
+        balance = gtk.Label("<small><b>Balance:</b> %s ISK</small>" % sheet.balance)
+        balance.set_use_markup(True)
         balance.set_alignment(0, 0.5)
 
-        intel = gtk.Label("Intelligence: %d" % sheet.attributes.intelligence)
+        intel = gtk.Label("<small><b>Intelligence:</b> %d</small>" % sheet.attributes.intelligence)
+        intel.set_use_markup(True)
         intel.set_alignment(0, 0.5)
-        mem = gtk.Label("Memory: %d" % sheet.attributes.memory)
+        mem = gtk.Label("<small><b>Memory:</b> %d</small>" % sheet.attributes.memory)
+        mem.set_use_markup(True)
         mem.set_alignment(0, 0.5)
-        char = gtk.Label("Charisma: %d" % sheet.attributes.charisma)
+        char = gtk.Label("<small><b>Charisma:</b> %d</small>" % sheet.attributes.charisma)
+        char.set_use_markup(True)
         char.set_alignment(0, 0.5)
-        percep = gtk.Label("Perception: %d" % sheet.attributes.perception)
+        percep = gtk.Label("<small><b>Perception:</b> %d</small>" % sheet.attributes.perception)
+        percep.set_use_markup(True)
         percep.set_alignment(0, 0.5)
-        wp = gtk.Label("Willpower: %d" % sheet.attributes.willpower)
+        wp = gtk.Label("<small><b>Willpower:</b> %d</small>" % sheet.attributes.willpower)
+        wp.set_use_markup(True)
         wp.set_alignment(0, 0.5)
 
         portrait = gtk.Image()
@@ -129,10 +142,11 @@ class mEveMonUI():
         info_vbox = gtk.VBox(False, 0)
         info_vbox.pack_start(name, False, False, 1)
         info_vbox.pack_start(race, False, False, 1)
+        info_vbox.pack_start(emptyLabel, False, False, 1)
         info_vbox.pack_start(corp, False, False, 1)
         info_vbox.pack_start(balance, False, False, 1)
 
-        stats_vbox = gtk.VBox(False, 0)
+        stats_vbox = gtk.VBox(False, 1)
         stats_vbox.pack_start(intel, False, False, 1)
         stats_vbox.pack_start(mem, False, False, 1)
         stats_vbox.pack_start(char, False, False, 1)
@@ -142,7 +156,7 @@ class mEveMonUI():
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
-        hbox.pack_start(stats_vbox, False, False, 10)
+        hbox.pack_start(stats_vbox, False, False, 15)
         
         vbox = gtk.VBox(False, 0)
         pannable_area.add_with_viewport(vbox)
@@ -167,7 +181,7 @@ class mEveMonUI():
     def add_columns_to_skills_view(self, treeview):
         #Column 0 for the treeview
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('Skill Name', renderer, text=0)
+        column = gtk.TreeViewColumn('Skill Name', renderer, markup=0)
         column.set_property("expand", True)
         treeview.append_column(column)
         
@@ -202,7 +216,7 @@ class mEveMonUI():
                     
                     # add row for this skill
                     liter = lstore.append()
-                    lstore.set(liter, 0, "%s (Rank %d)" % (skill.typeName, skill.rank),
+                    lstore.set(liter, 0, "%s <small>(Rank %d)</small>" % (skill.typeName, skill.rank),
                                       1, "SP: %d Level %d" %
                                                  (trained.skillpoints,
                                                   trained.level))
