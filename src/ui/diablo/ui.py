@@ -29,7 +29,7 @@ class mEveMonUI():
     about_name = 'mEveMon'
     about_text = ('Mobile character monitor for EVE Online')
     about_authors = ['Ryan Campbell','Danny Campbell']
-    about_website = 'http://example.site.org'
+    about_website = 'http://mevemon.garage.maemo.org'
     app_version = '0.1'
 
     menu_items = ("Settings", "About", "Refresh")
