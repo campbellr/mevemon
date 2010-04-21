@@ -109,6 +109,17 @@ class mEveMonUI():
         balance = gtk.Label("Balance: %s ISK" % sheet.balance)
         balance.set_alignment(0, 0.5)
 
+        intel = gtk.Label("Intelligence: %d" % sheet.attributes.intelligence)
+        intel.set_alignment(0, 0.5)
+        mem = gtk.Label("Memory: %d" % sheet.attributes.memory)
+        mem.set_alignment(0, 0.5)
+        char = gtk.Label("Charisma: %d" % sheet.attributes.charisma)
+        char.set_alignment(0, 0.5)
+        percep = gtk.Label("Perception: %d" % sheet.attributes.perception)
+        percep.set_alignment(0, 0.5)
+        wp = gtk.Label("Willpower: %d" % sheet.attributes.willpower)
+        wp.set_alignment(0, 0.5)
+
         portrait = gtk.Image()
         portrait.set_from_file(self.controller.get_portrait(char_name, 256))
         portrait.show()
@@ -121,9 +132,17 @@ class mEveMonUI():
         info_vbox.pack_start(corp, False, False, 1)
         info_vbox.pack_start(balance, False, False, 1)
 
+        stats_vbox = gtk.VBox(False, 0)
+        stats_vbox.pack_start(intel, False, False, 1)
+        stats_vbox.pack_start(mem, False, False, 1)
+        stats_vbox.pack_start(char, False, False, 1)
+        stats_vbox.pack_start(percep, False, False, 1)
+        stats_vbox.pack_start(wp, False, False, 1)
+
+
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
-        #hbox.pack_start(stats_vbox, False, False, 5)
+        hbox.pack_start(stats_vbox, False, False, 10)
         
         vbox = gtk.VBox(False, 0)
         pannable_area.add_with_viewport(vbox)
