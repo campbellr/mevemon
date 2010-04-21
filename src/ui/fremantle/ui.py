@@ -216,6 +216,8 @@ class CharacterSheetUI(BaseUI):
     def __init__(self, controller):
         self.controller = controller
         self.sheet = None
+        self.char_id = None
+        self.skills_model = None
 
 
     def build_window(self, treeview, path, view_column):
@@ -239,8 +241,8 @@ class CharacterSheetUI(BaseUI):
         
         # column 0 is the portrait, column 1 is name
         char_name = model.get_value(miter, 1)
-        char_id = self.controller.char_name2id(char_name)
-        self.sheet = self.controller.get_char_sheet(char_id)
+        self.char_id = self.controller.char_name2id(char_name)
+        self.sheet = self.controller.get_char_sheet(self.char_id)
 
         win.set_title(char_name)
 
@@ -354,12 +356,14 @@ class CharacterSheetUI(BaseUI):
     
     def update_model(self, lstore):
         lstore.clear()
+        self.sheet = self.controller.get_char_sheet(self.char_id)
         self.fill_skills_model(lstore)
 
 
     def refresh_clicked(self, button, window):
+        hildon.hildon_gtk_window_set_progress_indicator(window, 1)
         self.update_model(self.skills_model)
-        pass
+        hildon.hildon_gtk_window_set_progress_indicator(window, 0)
 
 if __name__ == "__main__":
     main()
