@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys
+import sys, time
 
 import gtk
 import hildon
@@ -284,8 +284,8 @@ class CharacterSheetUI(BaseUI):
                 
             self.add_label("%s <small>(Level %d)</small>" % (skill_name, skill.trainingToLevel),
                     vbox, align="normal")
-            self.add_label("<small>start time: %s\t\tend time: %s</small>" %(skill.trainingStartTime,
-                skill.trainingEndTime), vbox, align="normal")
+            self.add_label("<small>start time: %s\t\tend time: %s</small>" %(time.ctime(skill.trainingStartTime),
+                time.ctime(skill.trainingEndTime)), vbox, align="normal")
         else:
             self.add_label("<small>No skills are currently being trained</small>", vbox, align="normal")
 
