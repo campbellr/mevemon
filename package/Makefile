@@ -1,5 +1,12 @@
 #
-# Makefile for mEveMon
+# Makefile for mEveMon (inspired by the Makefile for Heremes)
+# 
+
+compile:
+	perl -ni -e 'print; exit if /^XB-Maemo-Icon-26:$$/' debian/control
+	uuencode -m share/mevemon-48.png - | perl -ne 'print " $$_" unless $$. == 1 or /^====$$/' >>debian/control
+
+
 
 install:
 	mkdir -p ${DESTDIR}/opt/mevemon/ ${DESTDIR}/opt/mevemon/eveapi ${DESTDIR}/opt/mevemon/ui \
