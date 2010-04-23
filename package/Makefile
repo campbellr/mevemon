@@ -10,7 +10,7 @@ compile:
 
 install:
 	mkdir -p ${DESTDIR}/opt/mevemon/ ${DESTDIR}/opt/mevemon/eveapi ${DESTDIR}/opt/mevemon/ui \
-	${DESTDIR}/opt/mevemon/diablo ${DESTDIR}/opt/mevemon/fremantle
+	${DESTDIR}/opt/mevemon/ui/diablo ${DESTDIR}/opt/mevemon/ui/fremantle
 	install -D -m 0644 -o root -g root src/*.py ${DESTDIR}/opt/mevemon/
 	install -D -m 0644 -o root -g root src/eveapi/*.py ${DESTDIR}/opt/mevemon/eveapi/
 	install -m 0644 -o root -g root src/ui/*.py  ${DESTDIR}/opt/mevemon/ui/
