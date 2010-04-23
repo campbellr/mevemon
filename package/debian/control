@@ -1,0 +1,12 @@
+Source: mevemon
+Section: user/games
+Priority: extra
+Maintainer: Ryan Campbell <campbellr@@gmail.com>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: mevemon
+Architecture: all
+Depends: python2.5, python2.5-gtk2
+Description: A character monitor for EVE Online.
+XSBC-Bugtracker: XSBC-Bugtracker: http://bugs.maemo.org
