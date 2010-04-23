@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # mEveMon - A character monitor for EVE Online
 # Copyright (c) 2010  Ryan and Danny Campbell, and the mEveMon Team

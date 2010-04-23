@@ -3,7 +3,7 @@ import os.path
 
 def portrait_filename( char_id, img_size ):
 
-    err_img = 'imgs/error.jpg'
+    err_img = '/opt/mEveMon/imgs/error.jpg'
 
     # we can only accept 64 or 256... I know an exclamation point is not an error message, but I'll come back to this. FIXME --danny
     if not ( img_size == 64 or img_size == 256 ):
@@ -11,9 +11,9 @@ def portrait_filename( char_id, img_size ):
 
     # if asked for the large version, save it under a diff name --danny
     if img_size == 64:
-        filename = "imgs/%s.jpg" % char_id
+        filename = "/opt/mEveMon/imgs/%s.jpg" % char_id
     elif img_size == 256:
-        filename = "imgs/%s_lg.jpg" % char_id
+        filename = "/opt/mEveMon/imgs/%s_lg.jpg" % char_id
 
     if os.path.isfile( filename ):
         return filename
@@ -24,7 +24,7 @@ def portrait_filename( char_id, img_size ):
     # fetch it, and hit the road. --danny
     try:
         urllib.urlretrieve( img_url, filename, report_handler )
-    except ContentTooShortError:
+    except urllib.ContentTooShortError:
         filename = err_img
     return filename
 
