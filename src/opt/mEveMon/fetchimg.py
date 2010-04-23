@@ -4,18 +4,22 @@ import os.path
 def portrait_filename( char_id, img_size ):
 
     err_img = '/opt/mEveMon/imgs/error.jpg'
+   
+    img_dir = os.path.expanduser("~/.mevemon/imgs/")
 
-    # we can only accept 64 or 256... I know an exclamation point is not an error message, but I'll come back to this. FIXME --danny
-    if not ( img_size == 64 or img_size == 256 ):
-        return err_img
 
     # if asked for the large version, save it under a diff name --danny
     if img_size == 64:
-        filename = "/opt/mEveMon/imgs/%s.jpg" % char_id
+        filename = os.path.join(img_dir, "%s.jpg" % char_id)
     elif img_size == 256:
-        filename = "/opt/mEveMon/imgs/%s_lg.jpg" % char_id
+        filename = os.path.join(img_dir, "%s_lg.jpg" % char_id)
+    else:
+    # we can only accept 64 or 256... I know an exclamation point is not an error message, but I'll come back to this. FIXME --danny
+        return err_img
 
-    if os.path.isfile( filename ):
+    if not os.path.exists(img_dir):
+        os.makedirs(img_dir)
+    elif os.path.isfile( filename ):
         return filename
 
     # specify size and cid --danny
