@@ -2,3 +2,6 @@
 *.pyo
 *.swp
 *~
+package/debian/mevemon/
+configure-stamp
+build-stamp

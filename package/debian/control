@@ -1,12 +1,14 @@
 Source: mevemon
-Section: user/games
+Section: user/utilities
 Priority: extra
 Maintainer: Ryan Campbell <campbellr@@gmail.com>
-Build-Depends: debhelper (>= 5)
+Build-Depends: debhelper (>= 5), python-runtime | python2.5-runtime, sharutils
 Standards-Version: 3.7.2
 
 Package: mevemon
 Architecture: all
-Depends: python2.5, python2.5-gtk2
+Depends: python2.5, python2.5-gtk2, python-hildon | python2.5-hildon, python-gobject
 Description: A character monitor for EVE Online.
-XSBC-Bugtracker: XSBC-Bugtracker: http://bugs.maemo.org
+XSBC-Bugtracker: XSBC-Bugtracker: https://garage.maemo.org/tracker/?func=add&group_id=1544&atid=5565
+XB-Maemo-Display-Name: mEveMon
+XB-Maemo-Icon-26:
