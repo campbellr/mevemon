@@ -92,6 +92,7 @@ class BaseUI():
         if result == gtk.RESPONSE_OK:
             self.controller.set_api_key(apiEntry.get_text())
             self.controller.set_uid(uidEntry.get_text())
+            self.controller.set_auth()
             self.update_model(self.char_model)
         
         dialog.destroy()
