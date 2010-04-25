@@ -5,3 +5,7 @@
 package/debian/mevemon/
 configure-stamp
 build-stamp
+*.changes
+*.deb
+*.dsc
+*.tar.gz
