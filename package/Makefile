@@ -5,25 +5,25 @@
 #edit these when creating a new release
 MAJOR_VER='0'
 MINOR_VER='1'
-PKG_VER='5'
+PKG_VER='7'
 
 compile:
 	perl -ni -e 'print; exit if /^XB-Maemo-Icon-26:$$/' debian/control
 	uuencode -m share/mevemon-48.png - | perl -ne 'print " $$_" unless $$. == 1 or /^====$$/' >>debian/control
-
+	py_compilefiles src/* src/eveapi/* src/ui/* src/ui/*/*
 
 
 install_fremantle:
 	mkdir -p ${DESTDIR}/opt/mevemon/ ${DESTDIR}/opt/mevemon/eveapi ${DESTDIR}/opt/mevemon/ui \
 	${DESTDIR}/opt/mevemon/ui/diablo ${DESTDIR}/opt/mevemon/ui/fremantle ${DESTDIR}/usr/bin \
 	${DESTDIR}/opt/mevemon/imgs/
-	install -D -m 0644 -o root -g root src/*.py ${DESTDIR}/opt/mevemon/
+	install -D -m 0644 -o root -g root src/*.py* ${DESTDIR}/opt/mevemon/
 	ln -s /opt/mevemon/mevemon.py ${DESTDIR}/usr/bin/mevemon
-	install -D -m 0644 -o root -g root src/eveapi/*.py ${DESTDIR}/opt/mevemon/eveapi/
+	install -D -m 0644 -o root -g root src/eveapi/*.py* ${DESTDIR}/opt/mevemon/eveapi/
 	install -m 0644 -o root -g root src/imgs/*.jpg ${DESTDIR}/opt/mevemon/imgs/
-	install -m 0644 -o root -g root src/ui/*.py  ${DESTDIR}/opt/mevemon/ui/
-	install -D -m 0644 -o root -g root src/ui/fremantle/*.py  ${DESTDIR}/opt/mevemon/ui/fremantle/
-	install -D -m 0644 -o root -g root src/ui/diablo/*.py  ${DESTDIR}/opt/mevemon/ui/diablo/
+	install -m 0644 -o root -g root src/ui/*.py*  ${DESTDIR}/opt/mevemon/ui/
+	install -D -m 0644 -o root -g root src/ui/fremantle/*.py*  ${DESTDIR}/opt/mevemon/ui/fremantle/
+	install -D -m 0644 -o root -g root src/ui/diablo/*.py*  ${DESTDIR}/opt/mevemon/ui/diablo/
 	install -D -m 0644 -o root -g root share/mevemon-64.png \
 	${DESTDIR}/usr/share/icons/hicolor/scalable/hildon/mevemon.png
 	install -D -m 0644 -o root -g root share/mevemon-48.png \
@@ -56,9 +56,11 @@ install_diablo:
 clean:
 	rm -f src/*.py[oc]
 	rm -f src/ui/fremantle/*.py[oc]
+	rm -rf src/ui/*.py[oc]
 	rm -f src/ui/diablo/*.py[oc]
 	rm -f src/eveap/*.py[oc]
 	rm -f build-stamp configure-stamp
+	rm -rf debian/mevemon
 	find . -name *~ -exec rm -f {} \;	
 
 package_fremantle:
