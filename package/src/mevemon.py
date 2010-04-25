@@ -30,8 +30,10 @@ import gnome.gconf
 #ugly hack to check maemo version. any better way?
 if hasattr(hildon, "StackableWindow"):
     from ui.fremantle import ui
+    is_fremantle = True
 else:
     from ui.diablo import ui
+    is_fremantle = False
 
 class mEveMon():
     def __init__(self):
@@ -121,7 +123,12 @@ class mEveMon():
         name, if there's a problem. FIXME --danny
         """
         ui_char_list = []
-        placeholder_chars = [("Please check your API settings.", "imgs/error.jpg")]
+        if is_fremantle:
+            err_img = "/opt/mevemon/imgs/error.jpg"
+        else:
+            err_img = "/usr/share/mevemon/imgs/error.jpg"
+
+        placeholder_chars = [("Please check your API settings.", err_img)]
         if not self.auth: return placeholder_chars
         try:
             api_char_list = self.auth.account.Characters()

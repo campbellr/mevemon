@@ -5,7 +5,7 @@
 #edit these when creating a new release
 MAJOR_VER='0'
 MINOR_VER='1'
-PKG_VER='1'
+PKG_VER='5'
 
 compile:
 	perl -ni -e 'print; exit if /^XB-Maemo-Icon-26:$$/' debian/control
@@ -15,9 +15,12 @@ compile:
 
 install_fremantle:
 	mkdir -p ${DESTDIR}/opt/mevemon/ ${DESTDIR}/opt/mevemon/eveapi ${DESTDIR}/opt/mevemon/ui \
-	${DESTDIR}/opt/mevemon/ui/diablo ${DESTDIR}/opt/mevemon/ui/fremantle
+	${DESTDIR}/opt/mevemon/ui/diablo ${DESTDIR}/opt/mevemon/ui/fremantle ${DESTDIR}/usr/bin \
+	${DESTDIR}/opt/mevemon/imgs/
 	install -D -m 0644 -o root -g root src/*.py ${DESTDIR}/opt/mevemon/
+	ln -s /opt/mevemon/mevemon.py ${DESTDIR}/usr/bin/mevemon
 	install -D -m 0644 -o root -g root src/eveapi/*.py ${DESTDIR}/opt/mevemon/eveapi/
+	install -m 0644 -o root -g root src/imgs/*.jpg ${DESTDIR}/opt/mevemon/imgs/
 	install -m 0644 -o root -g root src/ui/*.py  ${DESTDIR}/opt/mevemon/ui/
 	install -D -m 0644 -o root -g root src/ui/fremantle/*.py  ${DESTDIR}/opt/mevemon/ui/fremantle/
 	install -D -m 0644 -o root -g root src/ui/diablo/*.py  ${DESTDIR}/opt/mevemon/ui/diablo/
@@ -28,12 +31,16 @@ install_fremantle:
 	install -D -m 0644 -o root -g root share/mevemon.desktop \
 	${DESTDIR}/usr/share/applications/hildon/mevemon.desktop
 	chmod 755 ${DESTDIR}/opt/mevemon/mevemon.py
+	chmod 755 ${DESTDIR}/usr/bin/mevemon
 
 install_diablo:
-	mkdir -p ${DESTDIR}/usr/share/mevemon/ ${DESTDIR}/usr/share/mevemon/eveapi ${DESTDIR}/usr/share/mevemon/ui \
-	${DESTDIR}/usr/share/mevemon/ui/diablo ${DESTDIR}/usr/share/mevemon/ui/fremantle
+	mkdir -p ${DESTDIR}/usr/share/mevemon/ ${DESTDIR}/usr/share/mevemon/eveapi \
+	${DESTDIR}/usr/share/mevemon/ui ${DESTDIR}/usr/share/mevemon/ui/diablo \
+	${DESTDIR}/usr/share/mevemon/ui/fremantle ${DESTDIR}/usr/bin ${DESTDIR}/usr/share/mevemon/imgs/
 	install -D -m 0644 -o root -g root src/*.py ${DESTDIR}/usr/share/mevemon/
+	ln -s /usr/share/mevemon/mevemon.py ${DESTDIR}/usr/bin/mevemon
 	install -D -m 0644 -o root -g root src/eveapi/*.py ${DESTDIR}/usr/share/mevemon/eveapi/
+	install -m 0644 -o root -g root src/imgs/*.jpg ${DESTDIR}/usr/share/mevemon/imgs/
 	install -m 0644 -o root -g root src/ui/*.py  ${DESTDIR}/usr/share/mevemon/ui/
 	install -D -m 0644 -o root -g root src/ui/fremantle/*.py  ${DESTDIR}/usr/share/mevemon/ui/fremantle/
 	install -D -m 0644 -o root -g root src/ui/diablo/*.py  ${DESTDIR}/usr/share/mevemon/ui/diablo/
@@ -41,9 +48,10 @@ install_diablo:
 	${DESTDIR}/usr/share/icons/hicolor/scalable/hildon/mevemon.png
 	install -D -m 0644 -o root -g root share/mevemon-48.png \
 	${DESTDIR}/usr/share/icons/hicolor/48x48/hildon/mevemon.png
-	install -D -m 0644 -o root -g root share/mevemon-diablo.desktop \
+	install -D -m 0644 -o root -g root share/mevemon.desktop \
 	${DESTDIR}/usr/share/applications/hildon/mevemon.desktop
 	chmod 755 ${DESTDIR}/usr/share/mevemon/mevemon.py
+	chmod 755 ${DESTDIR}/usr/bin/mevemon
 
 clean:
 	rm -f src/*.py[oc]
