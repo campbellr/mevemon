@@ -7,8 +7,20 @@ Standards-Version: 3.7.2
 
 Package: mevemon
 Architecture: all
-Depends: python2.5, python2.5-gtk2, python-hildon | python2.5-hildon, python-gobject
+Depends: python2.5, python2.5-gtk2, python-hildon | python2.5-hildon, python2.5-gobject | python-gobject
 Description: A character monitor for EVE Online.
 XSBC-Bugtracker: XSBC-Bugtracker: https://garage.maemo.org/tracker/?func=add&group_id=1544&atid=5565
 XB-Maemo-Display-Name: mEveMon
 XB-Maemo-Icon-26:
+ iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c
+ 6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0
+ SU1FB9oEFxIKJnB/RmYAAAGOSURBVGje7VnBsoMgDFwkHPxRT36OH+sokHcp
+ jDqKtgjKG3LKWIcmzWZ3raLrOmZmCCEAAKXlDT7BzCgx9w24zkrLfQOlRoVQ
+ hVBk0HIcW4oSQoCZYYx5pDgppa/hiEopNCZ3s1LqkQaYeVXwXp0UOsAYA6UU
+ hmEAEcFam4dZmgZaa/R9D601iOg3CPmbPgc0Tb6VWRYdgtApCwFY/fJurCnz
+ 7XfexkI5Of4WFgrF2ed37MEVCNEVCC2vuwOWY0+1xFcgRDEQ6vse8zxDSpmM
+ Rs/OvgQhN87ttXmeMU1TkOYeFTIXjosdM7gRSylBRL6B1A8xX0NISumh8uuI
+ X+GFxnE8FZtXe6G2basXql6oeqGSvdCekOXYg9u80FbIci1xtBc6E7IcNBrl
+ hf69kG2F5nVe6EjIvhGaR71QSMiICMaY1bK91k5ba33x7gBrrf+/KOUDTRSE
+ QkImhMAwDGV4ob1GHEsV4YWOrlcvVL1Q9UKFeKGUYpXFCxHRK15uR7PQG6O+
+ Zn06rxCqEIrM/wCkqsKMiSl2kAAAAABJRU5ErkJggg==

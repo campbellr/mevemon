@@ -5,6 +5,5 @@ Name=mEveMon
 Comment=Character monitor for EVE Online
 Exec=/usr/bin/mevemon
 Icon=mevemon
-X-Icon-path=/usr/share/icons
 X-Window-Icon=mevemon
 Type=Application
