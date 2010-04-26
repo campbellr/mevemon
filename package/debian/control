@@ -9,6 +9,7 @@ Package: mevemon
 Architecture: all
 Depends: python2.5, python2.5-gtk2, python-hildon | python2.5-hildon, python2.5-gobject | python-gobject
 Description: A character monitor for EVE Online.
+ mEveMon allows you to monitor your EVE Online character from your N900 or N8x0.
 XSBC-Bugtracker: XSBC-Bugtracker: https://garage.maemo.org/tracker/?func=add&group_id=1544&atid=5565
 XB-Maemo-Display-Name: mEveMon
 XB-Maemo-Icon-26:
