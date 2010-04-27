@@ -140,7 +140,7 @@ class mEveMonUI(BaseUI):
         character_win = CharacterSheetUI(self.controller)
 
         # create the treeview --danny
-        self.char_model = self.create_char_model()
+        self.char_model = models.CharacterListModel(self.controller)
         treeview = gtk.TreeView(model = self.char_model)
         treeview.connect('row-activated', character_win.build_window)
         treeview.set_model(self.char_model)
@@ -152,22 +152,6 @@ class mEveMonUI(BaseUI):
 
         progress_bar.set_fraction(1)
         progress_bar.destroy()
-
-    def create_char_model(self):
-        lstore = gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING)
-        #get icon and name and put in a liststore
-        self.fill_char_model(lstore)
-        return lstore
-
-    def fill_char_model(self, lstore):
-        char_list = self.controller.get_characters()
-        for name, icon in char_list:
-            liter = lstore.append()
-            lstore.set(liter, 1, name, 0, self.set_pix(icon))
-
-    def update_model(self, lstore):
-        lstore.clear()
-        self.fill_char_model(lstore)
 
     def add_columns_to_treeview(self, treeview):
         #Column 0 for the treeview
@@ -184,7 +168,10 @@ class mEveMonUI(BaseUI):
         treeview.append_column(column)
  
     def refresh_clicked(self, button, window):
-        self.update_model(self.char_model)
+        progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading characters...")
+        progress_bar.set_fraction(1)
+        self.char_model.get_characters()
+        progress_bar.destroy()
 
 class CharacterSheetUI(BaseUI):
     
@@ -234,7 +221,7 @@ class CharacterSheetUI(BaseUI):
 
         vbox.pack_start(hbox, False, False, 0)
 
-        skills_model = self.create_skills_model()
+        skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
         skills_treeview = gtk.TreeView(model = skills_model)
         skills_treeview.set_model(skills_model)
         self.add_columns_to_skills_view(skills_treeview)
@@ -295,40 +282,26 @@ class CharacterSheetUI(BaseUI):
         treeview.append_column(column)
         
         #Column 1 for the treeview
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('Skill Info', renderer, markup=1)
+        column = gtk.TreeViewColumn('Rank', renderer, markup=1)
         column.set_property("expand", True)
         treeview.append_column(column)
-
-    def create_skills_model(self):
-        lstore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
-        self.fill_skills_model(lstore)
-        return lstore
-
-    def fill_skills_model(self, lstore):
-        skilltree = self.controller.get_skill_tree()
-        sp = [0, 250, 1414, 8000, 45255, 256000]
-        for g in skilltree.skillGroups:
-            skills_trained_in_this_group = False
-            for skill in g.skills:
-                trained = self.sheet.skills.Get(skill.typeID, False)
-                if trained:
-                    if not skills_trained_in_this_group:
-                        #TODO: add as a heading/category
-                        skills_trained_in_this_group = True
-                    # add row for this skill
-                    liter = lstore.append()
-                    lstore.set(liter, 0, "%s <small>(Rank %d)</small>" % (skill.typeName, skill.rank), 1, "SP: %d Level %d" % (trained.skillpoints, trained.level))
-
-    def update_model(self, lstore):
-        lstore.clear()
-        self.sheet = self.controller.get_char_sheet(self.char_id)
-        self.fill_skills_model(lstore)
+        
+        #Column 2
+        renderer = gtk.CellRendererText()
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('Points', renderer, markup=2)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+        
+        #Column 3
+        column = gtk.TreeViewColumn('Level', renderer, markup=3)
+        column.set_property("expand", True)
+        treeview.append_column(column)
 
     def refresh_clicked(self, button, window):
         progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading overview...")
         progress_bar.set_fraction(1)
-        self.update_model(self.skills_model)
+        self.skills_model.get_skills()
         progress_bar.destroy()
 
 if __name__ == "__main__":
