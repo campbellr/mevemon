@@ -29,10 +29,10 @@ import gnome.gconf
 
 #ugly hack to check maemo version. any better way?
 if hasattr(hildon, "StackableWindow"):
-    from ui.fremantle import ui
+    from ui.fremantle import gui
     is_fremantle = True
 else:
-    from ui.diablo import ui
+    from ui.diablo import gui
     is_fremantle = False
 
 class mEveMon():
@@ -41,7 +41,7 @@ class mEveMon():
         self.program.__init__()
         self.gconf = gnome.gconf.client_get_default()
         self.set_auth()
-        self.ui = ui.mEveMonUI(self)
+        self.gui = gui.mEveMonUI(self)
 
     def run(self):
         gtk.main()
