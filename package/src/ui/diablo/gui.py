@@ -24,6 +24,8 @@ import gtk
 import hildon
 import gobject
 
+from ui import models
+
 class BaseUI():
 
     about_name = 'mEveMon'
