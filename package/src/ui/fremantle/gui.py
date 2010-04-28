@@ -101,7 +101,7 @@ class BaseUI():
             self.controller.set_api_key(apiEntry.get_text())
             self.controller.set_uid(uidEntry.get_text())
             self.controller.set_auth()
-            self.update_model(self.char_model)
+            self.char_model.get_characters()
 
         
         dialog.destroy()

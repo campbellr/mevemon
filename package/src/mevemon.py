@@ -123,10 +123,7 @@ class mEveMon():
         name, if there's a problem. FIXME --danny
         """
         ui_char_list = []
-        if is_fremantle:
-            err_img = "/opt/mevemon/imgs/error.jpg"
-        else:
-            err_img = "/usr/share/mevemon/imgs/error.jpg"
+        err_img = "/usr/share/mevemon/imgs/error.jpg"
 
         placeholder_chars = [("Please check your API settings.", err_img)]
         if not self.auth: return placeholder_chars
@@ -138,7 +135,8 @@ class mEveMon():
                 ui_char_list.append( ( character.name, fetchimg.portrait_filename( character.characterID, 64 ) ) )
         except eveapi.Error, e:
             # again, we need to handle this... --danny
-            raise
+            return placeholder_chars
+            #raise
 
         return ui_char_list
 

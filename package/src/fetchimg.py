@@ -3,10 +3,7 @@ import os.path
 
 def portrait_filename( char_id, img_size ):
 
-    err_img = '/opt/mevemon/imgs/error.jpg'
-    if not os.path.isfile(err_img):
-        #diablo location
-        err_img = "/usr/share/mevemon/imgs/error.jpg"
+    err_img = "/usr/share/mevemon/imgs/error.jpg"
    
     img_dir = os.path.expanduser("~/.mevemon/imgs/")
 
