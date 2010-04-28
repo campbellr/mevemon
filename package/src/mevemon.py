@@ -23,6 +23,7 @@ import gtk
 from eveapi import eveapi
 import fetchimg
 import apicache
+import os.path
 
 # we will store our preferences in gconf
 import gnome.gconf
@@ -40,7 +41,8 @@ class mEveMon():
         self.program = hildon.Program()
         self.program.__init__()
         self.gconf = gnome.gconf.client_get_default()
-        self.set_auth()
+        self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
+                apicache.cache_handler(debug=False))
         self.gui = gui.mEveMonUI(self)
 
     def run(self):
@@ -49,45 +51,41 @@ class mEveMon():
     def quit(self, *args):
         gtk.main_quit()
 
-    def get_api_key(self):
-        return self.gconf.get_string("/apps/maemo/mevemon/eve_api_key") or ''
+    def get_accounts(self):
+        accounts = {}
+        entries = self.gconf.all_entries("/apps/maemo/mevemon/accounts")
 
-    def get_uid(self):
-        return self.gconf.get_string("/apps/maemo/mevemon/eve_uid") or ''
+        for entry in entries:
+            key = os.path.basename(entry.get_key())
+            value = entry.get_value().to_string()
+            accounts[key] = value
 
-    def set_api_key(self, key):
-        self.gconf.set_string("/apps/maemo/mevemon/eve_api_key", key)
+        return accounts
+        
+    def get_api_key(self, uid):
+        return self.gconf.get_string("/apps/maemo/mevemon/accounts/%s" % uid) or ''
 
-    def set_uid(self, uid):
-        self.gconf.set_string("/apps/maemo/mevemon/eve_uid", uid)
+    def remove_account(self, uid):
+        self.gconf.unset("/apps/maemo/mevemon/accounts/%s" % uid)
+
+    def add_account(self, uid, api_key):
+        self.gconf.set_string("/apps/maemo/mevemon/accounts/%s" % uid, api_key)
 
 
-    def set_auth(self):
-        """
-        set self.auth to None if there was a problem. somehow later on we'll
-        have to pass the error to the UI, but for now I just want the program
-        to not be broken. --danny
-        """
-        uid = self.get_uid()
-        api_key = self.get_api_key()
-        self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
-                apicache.cache_handler( debug = False ) )
+    def get_auth(self, uid):
+        
+        api_key = self.get_api_key(uid)
+
         try:
-            self.auth = self.cached_api.auth( userID = uid, apiKey = api_key )
+            auth = self.cached_api.auth(userID=uid, apiKey=api_key)
         except eveapi.Error, e:
-            # we need to deal with this, so raise --danny
-            raise
-        except ValueError, e:
-            self.auth = None
-            #raise
+            return None
 
-    def get_auth(self):
-        return self.auth
+        return auth
 
-    def get_char_sheet(self, charID):
-        if not self.auth: return None
+    def get_char_sheet(self, uid, charID):
         try:
-            sheet = self.auth.character(charID).CharacterSheet()
+            sheet = self.get_auth(uid).character(charID).CharacterSheet()
         except eveapi.Error, e:
             # we should really have a logger that logs this error somewhere
             return None
@@ -117,7 +115,7 @@ class mEveMon():
         return char_id
 
     
-    def get_characters( self ):
+    def get_characters(self):
         """
         returns a list containing a single character with an error message for a
         name, if there's a problem. FIXME --danny
@@ -125,18 +123,23 @@ class mEveMon():
         ui_char_list = []
         err_img = "/usr/share/mevemon/imgs/error.jpg"
 
-        placeholder_chars = [("Please check your API settings.", err_img)]
-        if not self.auth: return placeholder_chars
-        try:
-            api_char_list = self.auth.account.Characters()
-            # append each char we get to the list we'll return to the
-            # UI --danny
-            for character in api_char_list.characters:
-                ui_char_list.append( ( character.name, fetchimg.portrait_filename( character.characterID, 64 ) ) )
-        except eveapi.Error, e:
-            # again, we need to handle this... --danny
-            return placeholder_chars
-            #raise
+        placeholder_chars = ("Please check your API settings.", err_img, "0")
+        
+        acct_dict = self.get_accounts()
+        if not acct_dict:
+            return [placeholder_chars]
+
+        for uid, apiKey in acct_dict.items():
+            auth = self.cached_api.auth(userID=uid, apiKey=apiKey)
+            try:
+                api_char_list = auth.account.Characters()
+                # append each char we get to the list we'll return to the
+                # UI --danny
+                for character in api_char_list.characters:
+                    ui_char_list.append( ( character.name, fetchimg.portrait_filename( character.characterID, 64 ), uid) )
+            except eveapi.Error, e:
+                # again, we need to handle this... --danny
+                ui_char_list.append(placeholder_chars)
 
         return ui_char_list
 
@@ -156,9 +159,9 @@ class mEveMon():
         
         return tree
 
-    def get_skill_in_training(self, charID):
+    def get_skill_in_training(self, uid, charID):
         try:
-            skill = self.auth.character(charID).SkillInTraining()
+            skill = self.get_auth(uid).character(charID).SkillInTraining()
         except:
             print e
             return None

@@ -1,11 +1,32 @@
 import gtk
 
-
-class CharacterListModel(gtk.ListStore):
-    C_PORTRAIT, C_NAME = range(2)
+class AccountsModel(gtk.ListStore):
+    C_UID, C_APIKEY = range(2)
 
     def __init__(self, controller):
-        gtk.ListStore.__init__(self, gtk.gdk.Pixbuf, str)
+        gtk.ListStore.__init__(self, str, str)
+        self.controller = controller
+        self.get_accounts()
+
+    def get_accounts(self):
+        self.clear()
+
+        accts_dict = self.controller.get_accounts()
+
+        if not accts_dict:
+            return None
+
+        for uid, key in accts_dict.items():
+            liter = self.append()
+            self.set(liter, self.C_UID, uid, self.C_APIKEY, key)
+        
+
+
+class CharacterListModel(gtk.ListStore):
+    C_PORTRAIT, C_NAME, C_UID = range(3)
+
+    def __init__(self, controller):
+        gtk.ListStore.__init__(self, gtk.gdk.Pixbuf, str, str)
         self.controller = controller
         # should we do this on initialization?
         self.get_characters()
@@ -15,9 +36,9 @@ class CharacterListModel(gtk.ListStore):
         
         char_list = self.controller.get_characters()
 
-        for name, icon in char_list:
+        for name, icon, uid in char_list:
             liter = self.append()
-            self.set(liter, self.C_PORTRAIT, self._set_pix(icon), self.C_NAME, name)
+            self.set(liter, self.C_PORTRAIT, self._set_pix(icon), self.C_NAME, name, self.C_UID, uid)
 
     def _set_pix(self, filename):
         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)

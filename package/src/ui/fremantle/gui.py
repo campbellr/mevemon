@@ -58,18 +58,66 @@ class BaseUI():
 
         return menu
 
-    def set_pix(self, filename):
-        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-        return pixbuf
-
     def settings_clicked(self, button, window):
+
+        RESPONSE_NEW, RESPONSE_EDIT, RESPONSE_DELETE = range(3)
+
+        dialog = gtk.Dialog()
+        dialog.set_transient_for(window)
+        dialog.set_title("Settings")
+        
+        vbox = dialog.vbox
+        
+        acctsLabel = gtk.Label("Accounts:")
+        acctsLabel.set_justify(gtk.JUSTIFY_LEFT)
+     
+        vbox.pack_start(acctsLabel, False, False, 1)
+       
+        accounts_model = models.AccountsModel(self.controller)
+        
+        accounts_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
+        accounts_treeview.set_model(accounts_model)
+        self.add_columns_to_accounts(accounts_treeview)
+        vbox.pack_start(accounts_treeview, False, False, 1)
+
+        # all stock responses are negative, so we can use any positive value
+        new_button = dialog.add_button("New", RESPONSE_NEW)
+        edit_button = dialog.add_button("Edit", RESPONSE_EDIT)
+        delete_button = dialog.add_button("Delete", RESPONSE_DELETE)
+        ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        
+        dialog.show_all()
+        result = dialog.run()
+        if result == RESPONSE_NEW:
+            self.new_account_clicked(window)
+            accounts_model.get_accounts()
+        elif result = RESPONSE_EDIT:
+            # get the selected treeview item and pop up the account_box
+            pass
+        elif result = RESPONSE_DELETE:
+            # get the selected treeview item, and delete the gconf keys
+            pass
+        elif result == gtk.RESPONSE_OK:
+            self.char_model.get_characters()
+            dialog.destroy()
+
+    
+    def add_columns_to_accounts(self, treeview):
+        #Column 0 for the treeview
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('Account ID', renderer, text=0)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+
+
+    def new_account_clicked(self, window):
         dialog = gtk.Dialog()
     
         #get the vbox to pack all the settings into
         vbox = dialog.vbox
     
         dialog.set_transient_for(window)
-        dialog.set_title("Settings")
+        dialog.set_title("New Account")
 
         uidLabel = gtk.Label("User ID:")
         uidLabel.set_justify(gtk.JUSTIFY_LEFT)
@@ -77,7 +125,6 @@ class BaseUI():
         
         uidEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
         uidEntry.set_placeholder("User ID")
-        uidEntry.set_text(self.controller.get_uid())
         uidEntry.set_property('is_focus', False)
         
         vbox.add(uidEntry)
@@ -88,7 +135,6 @@ class BaseUI():
         
         apiEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
         apiEntry.set_placeholder("API Key")
-        apiEntry.set_text(self.controller.get_api_key())
         apiEntry.set_property('is_focus', False)
 
         vbox.add(apiEntry)
@@ -98,11 +144,7 @@ class BaseUI():
         dialog.show_all()
         result = dialog.run()
         if result == gtk.RESPONSE_OK:
-            self.controller.set_api_key(apiEntry.get_text())
-            self.controller.set_uid(uidEntry.get_text())
-            self.controller.set_auth()
-            self.char_model.get_characters()
-
+            self.controller.add_account(uidEntry.get_text(), apiEntry.get_text())
         
         dialog.destroy()
 
