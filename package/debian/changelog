@@ -1,5 +1,5 @@
-mevemon (0.1-1) stable; urgency=low
+mevemon (0.2-1) stable; urgency=low
 
-  First release.
+  * Fixed a missing dependency on 'gnome-python'
 
- -- Ryan Campbell <campbellr@@gmail.com>  Fri, 23 Apr 2010 13:23:20 +0000
+ -- Ryan Campbell <campbellr@gmail.com>  Fri, 28 Apr 2010 12:23:20 +0000
