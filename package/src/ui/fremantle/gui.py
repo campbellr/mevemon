@@ -30,7 +30,7 @@ class BaseUI():
     about_text = ('Mobile character monitor for EVE Online')
     about_authors = ['Ryan Campbell', 'Danny Campbell']
     about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.2'
+    app_version = '0.3'
 
     menu_items = ("Settings", "About", "Refresh")
 
