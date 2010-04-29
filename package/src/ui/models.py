@@ -59,7 +59,9 @@ class CharacterSkillsModel(gtk.ListStore):
     def get_skills(self):
         self.clear()
         
-        self.sheet = self.controller.get_char_sheet(self.charID)
+        uid = self.controller.charid2uid(self.charID)
+
+        self.sheet = self.controller.get_char_sheet(uid, self.charID)
         
         skilltree = self.controller.get_skill_tree()
 

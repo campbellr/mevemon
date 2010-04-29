@@ -103,11 +103,9 @@ class BaseUI():
             elif result == RESPONSE_EDIT:
                 # get the selected treeview item and pop up the account_box
                 self.edit_account(accounts_treeview)
-                pass
             elif result == RESPONSE_DELETE:
                 # get the selected treeview item, and delete the gconf keys
                 self.delete_account(accounts_treeview)
-                pass
             elif result == gtk.RESPONSE_OK:
                 self.char_model.get_characters()
                 break
@@ -116,7 +114,7 @@ class BaseUI():
 
         dialog.destroy()
 
-   def get_selected_item(treeview, column):
+    def get_selected_item(treeview, column):
         selection = treeview.get_selection()
         model, miter = selection.get_selected() 
         
@@ -300,8 +298,10 @@ class CharacterSheetUI(BaseUI):
         
         # column 0 is the portrait, column 1 is name
         char_name = model.get_value(miter, 1)
+        uid = model.get_value(miter, 2)
         self.char_id = self.controller.char_name2id(char_name)
-        self.sheet = self.controller.get_char_sheet(self.char_id)
+
+        self.sheet = self.controller.get_char_sheet(uid, self.char_id)
 
         win.set_title(char_name)
 
@@ -328,7 +328,7 @@ class CharacterSheetUI(BaseUI):
         self.fill_stats(stats_vbox)
         
         self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
-        skill = self.controller.get_skill_in_training(self.char_id)
+        skill = self.controller.get_skill_in_training(uid, self.char_id)
         
         if skill.skillInTraining:
 

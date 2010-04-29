@@ -72,7 +72,6 @@ class mEveMon():
         self.gconf.set_string("/apps/maemo/mevemon/accounts/%s" % uid, api_key)
 
     def get_auth(self, uid):
-        
         api_key = self.get_api_key(uid)
 
         try:
@@ -91,6 +90,20 @@ class mEveMon():
 
         return sheet
 
+    def charid2uid(self, charID):
+        acct_dict = self.get_accounts()
+        
+        for uid, apiKey in acct_dict.items():
+            auth = self.cached_api.auth(userID=uid, apiKey=apiKey)
+            api_char_list = auth.account.Characters()
+            
+            for character in api_char_list.characters:
+                if character.characterID== charID:
+                    return uid
+
+        
+        return None
+    
     def char_id2name(self, charID):
         # the api can take a comma-seperated list of ids, but we'll just take
         # a single id for now
