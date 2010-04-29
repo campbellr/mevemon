@@ -86,7 +86,8 @@ class BaseUI():
 
         # all stock responses are negative, so we can use any positive value
         new_button = dialog.add_button("New", RESPONSE_NEW)
-        edit_button = dialog.add_button("Edit", RESPONSE_EDIT)
+        #TODO: get edit button working
+        #edit_button = dialog.add_button("Edit", RESPONSE_EDIT)
         delete_button = dialog.add_button("Delete", RESPONSE_DELETE)
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
         
@@ -114,7 +115,7 @@ class BaseUI():
 
         dialog.destroy()
 
-    def get_selected_item(treeview, column):
+    def get_selected_item(self, treeview, column):
         selection = treeview.get_selection()
         model, miter = selection.get_selected() 
         
@@ -129,7 +130,7 @@ class BaseUI():
         self.accounts_model.get_accounts()
          
     def delete_account(self, treeview):
-        uid = get_selected_item(treeview, 0) 
+        uid = self.get_selected_item(treeview, 0) 
         self.controller.remove_account(uid)
         # refresh model
         self.accounts_model.get_accounts()
