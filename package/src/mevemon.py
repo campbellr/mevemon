@@ -71,7 +71,6 @@ class mEveMon():
     def add_account(self, uid, api_key):
         self.gconf.set_string("/apps/maemo/mevemon/accounts/%s" % uid, api_key)
 
-
     def get_auth(self, uid):
         
         api_key = self.get_api_key(uid)

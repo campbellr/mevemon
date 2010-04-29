@@ -30,7 +30,7 @@ class BaseUI():
     about_text = ('Mobile character monitor for EVE Online')
     about_authors = ['Ryan Campbell', 'Danny Campbell']
     about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.1'
+    app_version = '0.2'
 
     menu_items = ("Settings", "About", "Refresh")
 
@@ -66,17 +66,21 @@ class BaseUI():
         dialog.set_transient_for(window)
         dialog.set_title("Settings")
         
-        vbox = dialog.vbox
-        
+        pannable_area = hildon.PannableArea()
+
+        dialog_vbox = dialog.vbox
+
+        vbox = gtk.VBox(False, 1)
+
         acctsLabel = gtk.Label("Accounts:")
         acctsLabel.set_justify(gtk.JUSTIFY_LEFT)
      
         vbox.pack_start(acctsLabel, False, False, 1)
        
-        accounts_model = models.AccountsModel(self.controller)
+        self.accounts_model = models.AccountsModel(self.controller)
         
         accounts_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
-        accounts_treeview.set_model(accounts_model)
+        accounts_treeview.set_model(self.accounts_model)
         self.add_columns_to_accounts(accounts_treeview)
         vbox.pack_start(accounts_treeview, False, False, 1)
 
@@ -86,20 +90,51 @@ class BaseUI():
         delete_button = dialog.add_button("Delete", RESPONSE_DELETE)
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
         
+        pannable_area.add_with_viewport(vbox)
+        
+        dialog_vbox.pack_start(pannable_area, True, True, 1)
+       
         dialog.show_all()
+        
         result = dialog.run()
-        if result == RESPONSE_NEW:
-            self.new_account_clicked(window)
-            accounts_model.get_accounts()
-        elif result = RESPONSE_EDIT:
-            # get the selected treeview item and pop up the account_box
-            pass
-        elif result = RESPONSE_DELETE:
-            # get the selected treeview item, and delete the gconf keys
-            pass
-        elif result == gtk.RESPONSE_OK:
-            self.char_model.get_characters()
-            dialog.destroy()
+        while(result != gtk.RESPONSE_DELETE_EVENT):
+            if result == RESPONSE_NEW:
+                self.new_account_clicked(window)
+            elif result == RESPONSE_EDIT:
+                # get the selected treeview item and pop up the account_box
+                self.edit_account(accounts_treeview)
+                pass
+            elif result == RESPONSE_DELETE:
+                # get the selected treeview item, and delete the gconf keys
+                self.delete_account(accounts_treeview)
+                pass
+            elif result == gtk.RESPONSE_OK:
+                self.char_model.get_characters()
+                break
+            
+            result = dialog.run()
+
+        dialog.destroy()
+
+   def get_selected_item(treeview, column):
+        selection = treeview.get_selection()
+        model, miter = selection.get_selected() 
+        
+        value = model.get_value(miter, column)
+        
+        return value
+
+    def edit_account(self, treeview):
+        uid = self.get_selected_item(treeview, 0)
+        # pop up the account dialog
+
+        self.accounts_model.get_accounts()
+         
+    def delete_account(self, treeview):
+        uid = get_selected_item(treeview, 0) 
+        self.controller.remove_account(uid)
+        # refresh model
+        self.accounts_model.get_accounts()
 
     
     def add_columns_to_accounts(self, treeview):
@@ -145,6 +180,8 @@ class BaseUI():
         result = dialog.run()
         if result == gtk.RESPONSE_OK:
             self.controller.add_account(uidEntry.get_text(), apiEntry.get_text())
+            self.accounts_model.get_accounts()
+
         
         dialog.destroy()
 
