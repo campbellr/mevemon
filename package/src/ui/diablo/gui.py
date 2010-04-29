@@ -223,12 +223,6 @@ class CharacterSheetUI(BaseUI):
 
         vbox.pack_start(hbox, False, False, 0)
 
-        skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
-        skills_treeview = gtk.TreeView(model = skills_model)
-        skills_treeview.set_model(skills_model)
-        self.add_columns_to_skills_view(skills_treeview)
-
-        vbox.pack_start(skills_treeview, False, False, 0)
 
         self.fill_info(info_vbox)
         
@@ -254,6 +248,14 @@ class CharacterSheetUI(BaseUI):
             self.add_label("<small>No skills are currently being trained</small>", vbox, align="normal")
 
         self.add_label("<big>Skills:</big>", vbox, align="normal")
+
+
+        skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
+        skills_treeview = gtk.TreeView(model = skills_model)
+        skills_treeview.set_model(skills_model)
+        self.add_columns_to_skills_view(skills_treeview)
+
+        vbox.pack_start(skills_treeview, False, False, 0)
 
         win.add_with_scrollbar(vbox)
         win.show_all()
