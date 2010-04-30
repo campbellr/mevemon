@@ -27,18 +27,21 @@ import gobject
 from ui import models
 
 class BaseUI():
-
+    
     about_name = 'mEveMon'
     about_text = ('Mobile character monitor for EVE Online')
-    about_authors = [ 'Ryan Campbell','Danny Campbell' ]
+    about_authors = ['Ryan Campbell', 'Danny Campbell']
     about_website = 'http://mevemon.garage.maemo.org'
     app_version = '0.3'
+
     menu_items = ("Settings", "About", "Refresh")
 
     def create_menu(self, window):
         menu = gtk.Menu()
         for command in self.menu_items:
+            # Create menu entries
             button = gtk.MenuItem(command)
+
             if command == "About":
                 button.connect("activate", self.about_clicked)
             elif command == "Settings":
@@ -47,17 +50,101 @@ class BaseUI():
                 button.connect("activate", self.refresh_clicked, window)
             else:
                 assert False, command
+
             # Add entry to the view menu
             menu.append(button)
+            
         menu.show_all()
+
         return menu
 
-    def set_pix(self, filename):
-        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-        return pixbuf
-
     def settings_clicked(self, button, window):
-   
+
+        RESPONSE_NEW, RESPONSE_EDIT, RESPONSE_DELETE = range(3)
+
+        dialog = gtk.Dialog()
+        dialog.set_transient_for(window)
+        dialog.set_title("Settings")
+
+        vbox = dialog.vbox
+
+        acctsLabel = gtk.Label("Accounts:")
+        acctsLabel.set_justify(gtk.JUSTIFY_LEFT)
+
+        vbox.pack_start(acctsLabel, False, False, 1)
+
+        self.accounts_model = models.AccountsModel(self.controller)
+
+        accounts_treeview = gtk.TreeView(model = self.accounts_model)
+        self.add_columns_to_accounts(accounts_treeview)
+        vbox.pack_start(accounts_treeview, False, False, 1)
+
+        # all stock responses are negative, so we can use any positive value
+        new_button = dialog.add_button("New", RESPONSE_NEW)
+        #TODO: get edit button working
+        #edit_button = dialog.add_button("Edit", RESPONSE_EDIT)
+        delete_button = dialog.add_button("Delete", RESPONSE_DELETE)
+        ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+
+        #TODO: for some reason the scrollbar shows up in the middle of the
+        # dialog. Why?
+        #scrollbar = gtk.VScrollbar()
+        #vbox.add(scrollbar)
+
+        dialog.show_all()
+
+        result = dialog.run()
+        
+        while(result != gtk.RESPONSE_CANCEL):
+            if result == RESPONSE_NEW:
+                self.new_account_clicked(window)
+            elif result == RESPONSE_EDIT:
+                # get the selected treeview item and pop up the account_box
+                self.edit_account(accounts_treeview)
+            elif result == RESPONSE_DELETE:
+                # get the selected treeview item, and delete the gconf keys
+                self.delete_account(accounts_treeview)
+            elif result == gtk.RESPONSE_OK:
+                self.char_model.get_characters()
+                break
+        
+            result = dialog.run()
+
+        dialog.destroy()
+
+
+
+    def get_selected_item(self, treeview, column):
+        selection = treeview.get_selection()
+        model, miter = selection.get_selected()
+
+        value = model.get_value(miter, column)
+
+        return value
+
+    def edit_account(self, treeview):
+        uid = self.get_selected_item(treeview, 0)
+        # pop up the account dialog
+
+        self.accounts_model.get_accounts()
+
+    def delete_account(self, treeview):
+        uid = self.get_selected_item(treeview, 0)
+        self.controller.remove_account(uid)
+        # refresh model
+        self.accounts_model.get_accounts()
+
+
+    def add_columns_to_accounts(self, treeview):
+        #Column 0 for the treeview
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('Account ID', renderer, text=0)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+
+
+    def new_account_clicked(self, window):
         dialog = gtk.Dialog()
     
         #get the vbox to pack all the settings into
@@ -71,7 +158,6 @@ class BaseUI():
         vbox.add(uidLabel)
         
         uidEntry = gtk.Entry()
-        uidEntry.set_text(self.controller.get_uid())
         uidEntry.set_property('is_focus', False)
         
         vbox.add(uidEntry)
@@ -81,7 +167,6 @@ class BaseUI():
         vbox.add(apiLabel)
         
         apiEntry = gtk.Entry()
-        apiEntry.set_text(self.controller.get_api_key())
         apiEntry.set_property('is_focus', False)
 
         vbox.add(apiEntry)
@@ -92,10 +177,8 @@ class BaseUI():
         result = dialog.run()
 
         if result == gtk.RESPONSE_OK:
-            self.controller.set_api_key(apiEntry.get_text())
-            self.controller.set_uid(uidEntry.get_text())
-            self.controller.set_auth()
-            self.char_model.get_characters()
+            self.controller.add_account(uidEntry.get_text(), apiEntry.get_text())
+            self.accounts_model.get_accounts()
         
         dialog.destroy()
 
@@ -204,8 +287,10 @@ class CharacterSheetUI(BaseUI):
         
         # column 0 is the portrait, column 1 is name
         char_name = model.get_value(miter, 1)
+        uid = model.get_value(miter, 2)
         self.char_id = self.controller.char_name2id(char_name)
-        self.sheet = self.controller.get_char_sheet(self.char_id)
+        
+        self.sheet = self.controller.get_char_sheet(uid, self.char_id)
 
         win.set_title(char_name)
         
@@ -225,9 +310,15 @@ class CharacterSheetUI(BaseUI):
 
 
         self.fill_info(info_vbox)
+        self.fill_stats(info_vbox)
+
+        separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, False, 5)
+        separator.show()
+ 
         
         self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
-        skill = self.controller.get_skill_in_training(self.char_id)
+        skill = self.controller.get_skill_in_training(uid, self.char_id)
         
         if skill.skillInTraining:
 
@@ -244,9 +335,25 @@ class CharacterSheetUI(BaseUI):
                     vbox, align="normal")
             self.add_label("<small>start time: %s\t\tend time: %s</small>" %(time.ctime(skill.trainingStartTime),
                 time.ctime(skill.trainingEndTime)), vbox, align="normal")
+            
+            progressbar = gtk.ProgressBar()
+            fraction_completed = (time.time() - skill.trainingStartTime) / \
+                    (skill.trainingEndTime - skill.trainingStartTime)
+            
+            progressbar.set_fraction(fraction_completed)
+            align = gtk.Alignment(0.5, 0.5, 0.5, 0)
+            vbox.pack_start(align, False, False, 5)
+            align.show()
+            align.add(progressbar)
+            progressbar.show()
+
         else:
             self.add_label("<small>No skills are currently being trained</small>", vbox, align="normal")
 
+        separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, False, 0)
+        separator.show()
+        
         self.add_label("<big>Skills:</big>", vbox, align="normal")
 
 
@@ -269,14 +376,15 @@ class CharacterSheetUI(BaseUI):
         self.add_label("", box, markup=False)
         self.add_label("<small><b>Corp:</b> %s</small>" % self.sheet.corporationName, box)
         self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
-        self.add_label("", box, markup=False)
-        self.add_label("", box, markup=False)
-        self.add_label("", box, markup=False)
-        self.add_label("<small><b>Intelligence: </b>%d</small>" % self.sheet.attributes.intelligence, box)
-        self.add_label("<small><b>Memory:</b>\t%d</small>" % self.sheet.attributes.memory, box)
-        self.add_label("<small><b>Charisma:</b>\t%d</small>" % self.sheet.attributes.charisma, box)
-        self.add_label("<small><b>Perception:</b>\t%d</small>" % self.sheet.attributes.perception, box)
-        self.add_label("<small><b>Willpower:</b>\t%d</small>" % self.sheet.attributes.willpower, box)
+
+    def fill_stats(self, box):
+
+        atr = self.sheet.attributes
+
+        self.add_label("<small><b>I: </b>%d  <b>M: </b>%d  <b>C: </b>%d  " \
+                "<b>P: </b>%d  <b>W: </b>%d</small>" % (atr.intelligence,
+                    atr.memory, atr.charisma, atr.perception, atr.willpower), box)
+
 
     def add_columns_to_skills_view(self, treeview):
         #Column 0 for the treeview

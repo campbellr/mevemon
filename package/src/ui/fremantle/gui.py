@@ -53,7 +53,7 @@ class BaseUI():
 
             # Add entry to the view menu
             menu.append(button)
-        
+
         menu.show_all()
 
         return menu
@@ -427,3 +427,4 @@ class CharacterSheetUI(BaseUI):
 
 if __name__ == "__main__":
     main()
+

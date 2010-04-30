@@ -1,5 +1,5 @@
-mevemon (0.2-4) stable; urgency=low
+mevemon (0.3-1) stable; urgency=low
 
-  * Handle it better when user inputs invalid credentials
+  * UI cleanup and multiple account support
 
- -- Ryan Campbell <campbellr@gmail.com>  Wed, 28 Apr 2010 13:41:23 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Thu, 29 Apr 2010 20:46:12 -0007
