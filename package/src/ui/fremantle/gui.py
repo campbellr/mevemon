@@ -309,7 +309,6 @@ class CharacterSheetUI(BaseUI):
 
         hbox = gtk.HBox(False, 0)
         info_vbox = gtk.VBox(False, 0)
-        stats_vbox = gtk.VBox(False, 0)
 
         portrait = gtk.Image()
         portrait.set_from_file(self.controller.get_portrait(char_name, 256))
@@ -317,7 +316,7 @@ class CharacterSheetUI(BaseUI):
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
-        hbox.pack_start(stats_vbox, False, False, 15)
+        hbox.show()
 
         vbox = gtk.VBox(False, 0)
         pannable_area.add_with_viewport(vbox)
@@ -326,7 +325,11 @@ class CharacterSheetUI(BaseUI):
 
         self.fill_info(info_vbox)
         
-        self.fill_stats(stats_vbox)
+        self.fill_stats(info_vbox)
+
+        separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, False, 5)
+        separator.show()
         
         self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
         skill = self.controller.get_skill_in_training(uid, self.char_id)
@@ -346,9 +349,22 @@ class CharacterSheetUI(BaseUI):
                     vbox, align="normal")
             self.add_label("<small>start time: %s\t\tend time: %s</small>" %(time.ctime(skill.trainingStartTime),
                 time.ctime(skill.trainingEndTime)), vbox, align="normal")
+            progressbar = gtk.ProgressBar()
+            fraction_completed = (time.time() - skill.trainingStartTime) / \
+                    (skill.trainingEndTime - skill.trainingStartTime)
+            progressbar.set_fraction(fraction_completed)
+            align = gtk.Alignment(0.5, 0.5, 0.5, 0)
+            vbox.pack_start(align, False, False, 5)
+            align.show()
+            align.add(progressbar)
+            progressbar.show()
         else:
             self.add_label("<small>No skills are currently being trained</small>", vbox, align="normal")
 
+        separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, False, 0)
+        separator.show()
+        
         self.add_label("<big>Skills:</big>", vbox, align="normal")
 
         win.show_all()
@@ -373,14 +389,12 @@ class CharacterSheetUI(BaseUI):
 
 
     def fill_stats(self, box):
-        self.add_label("", box, markup=False)
-        self.add_label("", box, markup=False)
-        self.add_label("", box, markup=False)
-        self.add_label("<small><b>Intelligence: </b>%d</small>" % self.sheet.attributes.intelligence, box)
-        self.add_label("<small><b>Memory:</b>\t%d</small>" % self.sheet.attributes.memory, box)
-        self.add_label("<small><b>Charisma:</b>\t%d</small>" % self.sheet.attributes.charisma, box)
-        self.add_label("<small><b>Perception:</b>\t%d</small>" % self.sheet.attributes.perception, box)
-        self.add_label("<small><b>Willpower:</b>\t%d</small>" % self.sheet.attributes.willpower, box)
+        
+        atr = self.sheet.attributes
+
+        self.add_label("<small><b>I: </b>%d  <b>M: </b>%d  <b>C: </b>%d  " \
+                "<b>P: </b>%d  <b>W: </b>%d</small>" % (atr.intelligence,
+                    atr.memory, atr.charisma, atr.perception, atr.willpower), box)
 
 
     def add_columns_to_skills_view(self, treeview):

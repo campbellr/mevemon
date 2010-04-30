@@ -40,10 +40,15 @@ class mEveMon():
     abstract the EVE API and settings code from the UI code.
 
     """
+
+    GCONF_DIR = "/apps/maemo/mevemon"
+
     def __init__(self):
         self.program = hildon.Program()
         self.program.__init__()
         self.gconf = gnome.gconf.client_get_default()
+        #NOTE: remove this after a few releases
+        self.update_settings()
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
                 apicache.cache_handler(debug=False))
         self.gui = gui.mEveMonUI(self)
@@ -54,12 +59,26 @@ class mEveMon():
     def quit(self, *args):
         gtk.main_quit()
 
+    def update_settings(self):
+        """
+        Update from the old pre 0.3 settings to the new settings layout.
+        We should remove this eventually, once no one is using pre-0.3 mEveMon
+        """
+        uid = self.gconf.get_string("%s/eve_uid" % self.GCONF_DIR)
+        
+        if uid:
+            key = self.gconf.get_string("%s/eve_api_key" % self.GCONF_DIR)
+            self.add_account(uid, key)
+            self.gconf.unset("%s/eve_uid" % self.GCONF_DIR)
+            self.gconf.unset("%s/eve_api_key" % self.GCONF_DIR)
+
+
     def get_accounts(self):
         """
         Returns a dictionary containing uid:api_key pairs gathered from gconf
         """
         accounts = {}
-        entries = self.gconf.all_entries("/apps/maemo/mevemon/accounts")
+        entries = self.gconf.all_entries("%s/accounts" % self.GCONF_DIR)
 
         for entry in entries:
             key = os.path.basename(entry.get_key())
@@ -72,19 +91,19 @@ class mEveMon():
         """
         Returns the api key associated with the given uid.
         """
-        return self.gconf.get_string("/apps/maemo/mevemon/accounts/%s" % uid) or ''
+        return self.gconf.get_string("%s/accounts/%s" % (self.GCONF_DIR, uid)) or ''
 
     def remove_account(self, uid):
         """
         Removes the provided uid key from gconf
         """
-        self.gconf.unset("/apps/maemo/mevemon/accounts/%s" % uid)
+        self.gconf.unset("%s/accounts/%s" % (self.GCONF_DIR, uid))
 
     def add_account(self, uid, api_key):
         """
         Adds the provided uid:api_key pair to gconf.
         """
-        self.gconf.set_string("/apps/maemo/mevemon/accounts/%s" % uid, api_key)
+        self.gconf.set_string("%s/accounts/%s" % (self.GCONF_DIR, uid), api_key)
 
     def get_auth(self, uid):
         """
