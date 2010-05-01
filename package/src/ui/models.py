@@ -1,10 +1,10 @@
 import gtk
 
 class AccountsModel(gtk.ListStore):
-    C_UID, C_APIKEY = range(2)
+    C_UID, C_APIKEY, C_CHARS = range(3)
 
     def __init__(self, controller):
-        gtk.ListStore.__init__(self, str, str)
+        gtk.ListStore.__init__(self, str, str, str)
         self.controller = controller
         self.get_accounts()
 
@@ -18,7 +18,14 @@ class AccountsModel(gtk.ListStore):
 
         for uid, key in accts_dict.items():
             liter = self.append()
-            self.set(liter, self.C_UID, uid, self.C_APIKEY, key)
+            chars = self.controller.get_chars_from_acct(uid)
+            if chars:
+                char_str = ', '.join(chars)
+                char_str = "<small>%s</small>" % char_str
+            else:
+                char_str = ""
+
+            self.set(liter, self.C_UID, uid, self.C_APIKEY, key, self.C_CHARS, char_str)
         
 
 
@@ -86,5 +93,4 @@ class CharacterSkillsModel(gtk.ListStore):
                                       self.C_RANK, "<small>(Rank %d)</small>" % skill.rank,
                                       self.C_SKILLPOINTS, "SP: %d" % trained.skillpoints,
                                       self.C_LEVEL, "Level %d" % trained.level)
-
 

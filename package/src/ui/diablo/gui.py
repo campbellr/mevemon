@@ -142,6 +142,11 @@ class BaseUI():
         column = gtk.TreeViewColumn('Account ID', renderer, text=0)
         column.set_property("expand", True)
         treeview.append_column(column)
+        #Column 2 (characters) for the treeview
+        column = gtk.TreeViewColumn('Characters', renderer, 
+                markup=models.AccountsModel.C_CHARS)
+        column.set_property("expand", True)
+        treeview.append_column(column)
 
 
     def new_account_clicked(self, window):

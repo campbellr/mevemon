@@ -178,15 +178,31 @@ class mEveMon():
         try:
             chars = self.cached_api.eve.CharacterID(names=name).characters
             char_id = chars[0].characterID
+            char_name = chars[0].name
         except eveapi.Error:
             return None
 
         return char_id
 
-    
+    def get_chars_from_acct(self, uid):
+        """
+        Returns a list of characters associated with the provided user ID.
+        """
+        auth = self.get_auth(uid)
+        if not auth:
+            return None
+        else:
+            try:
+                api_char_list = auth.account.Characters()
+                char_list = [char.name for char in api_char_list.characters]
+            except eveapi.Error:
+                return None
+
+        return char_list
+
     def get_characters(self):
         """
-        Returns a list of (character_name, image_path) pairs from all the
+        Returns a list of (character_name, image_path, uid) tuples from all the
         accounts that are registered to mEveMon.
         
         If there is an authentication issue, then instead of adding a valid
@@ -202,24 +218,25 @@ class mEveMon():
         if not acct_dict:
             return [placeholder_chars]
 
-        for uid, api_key in acct_dict.items():
-            auth = self.cached_api.auth(userID=uid, apiKey=api_key)
-            try:
-                api_char_list = auth.account.Characters()
+        for uid in acct_dict.keys():
+            char_names = self.get_chars_from_acct(uid)
+            
+            if not char_names:
+                ui_char_list.append(placeholder_chars)
+            else:
                 # append each char we get to the list we'll return to the
                 # UI --danny
-                for character in api_char_list.characters:
-                    ui_char_list.append( ( character.name, fetchimg.portrait_filename( character.characterID, 64 ), uid) )
-            except eveapi.Error:
-                ui_char_list.append(placeholder_chars)
-
+                for char_name in char_names:
+                    ui_char_list.append((char_name, self.get_portrait(char_name, 64) , uid) )
+        
         return ui_char_list
 
     def get_portrait(self, char_name, size):
         """
-        Returns the relative path of the retrieved portrait
+        Returns the file path of the retrieved portrait
         """
         char_id = self.char_name2id(char_name)
+        
         return fetchimg.portrait_filename(char_id, size)
 
     def get_skill_tree(self):
