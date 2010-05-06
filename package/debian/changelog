@@ -1,5 +1,5 @@
-mevemon (0.3-1) stable; urgency=low
+mevemon (0.3-2) stable; urgency=low
 
-  * UI cleanup and multiple account support
+  * Fix crash when starting mevemon without network connection
 
- -- Ryan Campbell <campbellr@gmail.com>  Thu, 29 Apr 2010 20:46:12 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Thu, 06 May 2010 00:16:32 -0007

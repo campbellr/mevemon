@@ -25,6 +25,11 @@ import fetchimg
 import apicache
 import os.path
 
+#conic is used for connection handling
+import conic
+#import socket for handling socket exceptions
+import socket
+
 # we will store our preferences in gconf
 import gnome.gconf
 
@@ -49,6 +54,7 @@ class mEveMon():
         self.gconf = gnome.gconf.client_get_default()
         #NOTE: remove this after a few releases
         self.update_settings()
+        self.connect()
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
                 apicache.cache_handler(debug=False))
         self.gui = gui.mEveMonUI(self)
@@ -114,7 +120,7 @@ class mEveMon():
 
         try:
             auth = self.cached_api.auth(userID=uid, apiKey=api_key)
-        except eveapi.Error:
+        except: 
             return None
 
         return auth
@@ -126,7 +132,7 @@ class mEveMon():
         """
         try:
             sheet = self.get_auth(uid).character(char_id).CharacterSheet()
-        except eveapi.Error:
+        except:
             # TODO: we should really have a logger that logs this error somewhere
             return None
 
@@ -163,7 +169,7 @@ class mEveMon():
         try:
             chars = self.cached_api.eve.CharacterName(ids=char_id).characters
             name = chars[0].characterName
-        except eveapi.Error:
+        except:
             return None
 
         return name
@@ -179,7 +185,7 @@ class mEveMon():
             chars = self.cached_api.eve.CharacterID(names=name).characters
             char_id = chars[0].characterID
             char_name = chars[0].name
-        except eveapi.Error:
+        except:
             return None
 
         return char_id
@@ -195,7 +201,7 @@ class mEveMon():
             try:
                 api_char_list = auth.account.Characters()
                 char_list = [char.name for char in api_char_list.characters]
-            except eveapi.Error:
+            except:
                 return None
 
         return char_list
@@ -245,7 +251,7 @@ class mEveMon():
         """
         try:
             tree = self.cached_api.eve.SkillTree()
-        except eveapi.Error:
+        except:
             return None
         
         return tree
@@ -258,10 +264,20 @@ class mEveMon():
         """
         try:
             skill = self.get_auth(uid).character(char_id).SkillInTraining()
-        except eveapi.Error:
+        except:
             return None
 
         return skill
+
+    def connection_cb(self, connection, event, mgc):
+        pass    
+
+
+    def connect(self):
+        connection = conic.Connection()
+        #why 0xAA55?
+        connection.connect("connection-event", self.connection_cb, 0xAA55)
+        assert(connection.request_connection(conic.CONNECT_FLAG_NONE))
 
 
 if __name__ == "__main__":
