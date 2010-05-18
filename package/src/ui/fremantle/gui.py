@@ -22,6 +22,8 @@ import gtk
 import hildon
 import gobject
 
+import glib
+
 from ui import models
 
 class BaseUI():
@@ -214,6 +216,8 @@ class BaseUI():
 
         box.pack_start(label, False, False, padding)
 
+        return label
+
 
 class mEveMonUI(BaseUI):
 
@@ -279,7 +283,8 @@ class mEveMonUI(BaseUI):
     
 
 class CharacterSheetUI(BaseUI):
-    
+    UPDATE_INTERVAL = 1
+
     def __init__(self, controller):
         self.controller = controller
         self.sheet = None
@@ -308,10 +313,10 @@ class CharacterSheetUI(BaseUI):
         
         # column 0 is the portrait, column 1 is name
         char_name = model.get_value(miter, 1)
-        uid = model.get_value(miter, 2)
+        self.uid = model.get_value(miter, 2)
         self.char_id = self.controller.char_name2id(char_name)
 
-        self.sheet = self.controller.get_char_sheet(uid, self.char_id)
+        self.sheet = self.controller.get_char_sheet(self.uid, self.char_id)
 
         win.set_title(char_name)
 
@@ -338,7 +343,27 @@ class CharacterSheetUI(BaseUI):
         vbox.pack_start(separator, False, False, 5)
         
         self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
-        skill = self.controller.get_skill_in_training(uid, self.char_id)
+        
+        self.display_skill_in_training(vbox)
+
+        separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, False, 0)
+        
+        self.add_label("<big>Skills:</big>", vbox, align="normal")
+
+        skills_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
+        self.skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
+        skills_treeview.set_model(self.skills_model)
+        self.add_columns_to_skills_view(skills_treeview)
+        vbox.pack_start(skills_treeview, False, False, 1)
+
+        win.add(pannable_area)
+        win.show_all()
+
+        hildon.hildon_gtk_window_set_progress_indicator(win, 0)
+
+    def display_skill_in_training(self, vbox):
+        skill = self.controller.get_skill_in_training(self.uid, self.char_id)
         
         if skill.skillInTraining:
 
@@ -367,21 +392,7 @@ class CharacterSheetUI(BaseUI):
             self.add_label("<small>No skills are currently being trained</small>",
                     vbox, align="normal")
 
-        separator = gtk.HSeparator()
-        vbox.pack_start(separator, False, False, 0)
-        
-        self.add_label("<big>Skills:</big>", vbox, align="normal")
 
-        skills_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
-        self.skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
-        skills_treeview.set_model(self.skills_model)
-        self.add_columns_to_skills_view(skills_treeview)
-        vbox.pack_start(skills_treeview, False, False, 1)
-
-        win.add(pannable_area)
-        win.show_all()
-
-        hildon.hildon_gtk_window_set_progress_indicator(win, 0)
 
     def fill_info(self, box):
         self.add_label("<big><big>%s</big></big>" % self.sheet.name, box)
@@ -390,7 +401,14 @@ class CharacterSheetUI(BaseUI):
         self.add_label("", box, markup=False)
         self.add_label("<small><b>Corp:</b> %s</small>" % self.sheet.corporationName, box)
         self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
+        self.live_sp_val = self.controller.get_sp(self.uid, self.char_id)
+        print self.live_sp_val
+        self.live_sp = self.add_label("<small><b>Total SP:</b> %s</small>" %
+                self.live_sp_val, box)
+        
+        self.spps = self.controller.get_spps(self.uid, self.char_id)[0]
 
+        glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
 
     def fill_stats(self, box):
         
@@ -431,6 +449,15 @@ class CharacterSheetUI(BaseUI):
         hildon.hildon_gtk_window_set_progress_indicator(window, 1)
         self.skills_model.get_skills()
         hildon.hildon_gtk_window_set_progress_indicator(window, 0)
+
+
+    def update_live_sp(self):
+        self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
+        self.live_sp.set_label("<small><b>Total SP:</b> %d</small>" %
+                                self.live_sp_val)
+
+        return True
+
 
 if __name__ == "__main__":
     main()

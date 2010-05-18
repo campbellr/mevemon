@@ -25,6 +25,7 @@ import fetchimg
 import apicache
 import os.path
 import traceback
+import time
 
 #conic is used for connection handling
 import conic
@@ -55,7 +56,7 @@ class mEveMon():
         self.gconf = gnome.gconf.client_get_default()
         #NOTE: remove this after a few releases
         self.update_settings()
-        self.connect()
+        self.connect_to_network()
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
                 apicache.cache_handler(debug=False))
         self.gui = gui.mEveMonUI(self)
@@ -281,11 +282,63 @@ class mEveMon():
         pass    
 
 
-    def connect(self):
+    def connect_to_network(self):
         connection = conic.Connection()
         #why 0xAA55?
         connection.connect("connection-event", self.connection_cb, 0xAA55)
         assert(connection.request_connection(conic.CONNECT_FLAG_NONE))
+
+
+    def get_sp(self, uid, char_id):
+        sheet = self.get_char_sheet(uid, char_id)
+        
+        # TODO: we also have to calculate how much we earned from a
+        # currently training skill
+
+        actual_sp = 0
+        
+        for skill in sheet.skills:
+            actual_sp += skill.skillpoints
+
+        live_sp = actual_sp + self.get_training_sp(uid, char_id)
+
+        return live_sp
+
+    def get_spps(self, uid, char_id):
+        """
+        Calculate and returns the skill points per hour for the given character.
+        """
+        skill = self.get_skill_in_training(uid, char_id)
+        
+        if not skill.skillInTraining:
+            return (0, 0)
+
+        total_sp = skill.trainingDestinationSP - skill.trainingStartSP
+        total_time = skill.trainingEndTime - skill.trainingStartTime
+        
+        spps = float(total_sp) / total_time
+    
+        return (spps, skill.trainingStartTime)
+
+    def get_training_sp(self, uid, char_id):
+        """
+        returns the additional SP that the in-training skill has acquired
+        """
+
+        spps_tuple = self.get_spps(uid, char_id)
+        
+        print spps_tuple
+
+        if not spps_tuple:
+            return 0
+
+        spps, start_time = spps_tuple
+        
+        eve_time = time.time() #evetime is utc, right?
+        
+        time_diff =  eve_time - start_time
+
+        return (spps * time_diff) 
 
 
 if __name__ == "__main__":
