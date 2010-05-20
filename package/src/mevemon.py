@@ -268,7 +268,6 @@ class mEveMon():
         """
         Returns an object from eveapi containing information about the
         current skill in training
-
         """
         try:
             skill = self.get_auth(uid).character(char_id).SkillInTraining()
@@ -279,10 +278,20 @@ class mEveMon():
         return skill
 
     def connection_cb(self, connection, event, mgc):
+        """
+        I'm not sure why we need this, but connection.connect() won't work
+        without it, even empty.
+        """
         pass    
 
 
     def connect_to_network(self):
+        """
+        This will connect to the default network if avaliable, or pop up the
+        connection dialog to select a connection.
+        Running this when we start the program ensures we are connected to a
+        network.
+        """
         connection = conic.Connection()
         #why 0xAA55?
         connection.connect("connection-event", self.connection_cb, 0xAA55)
@@ -290,13 +299,13 @@ class mEveMon():
 
 
     def get_sp(self, uid, char_id):
-        sheet = self.get_char_sheet(uid, char_id)
-        
-        # TODO: we also have to calculate how much we earned from a
-        # currently training skill
-
+        """
+        Adds up the SP for all known skills, then calculates the SP gained
+        from an in-training skill.
+        """
         actual_sp = 0
         
+        sheet = self.get_char_sheet(uid, char_id)
         for skill in sheet.skills:
             actual_sp += skill.skillpoints
 
@@ -324,18 +333,12 @@ class mEveMon():
         """
         returns the additional SP that the in-training skill has acquired
         """
-
         spps_tuple = self.get_spps(uid, char_id)
         
-        print spps_tuple
-
         if not spps_tuple:
             return 0
-
         spps, start_time = spps_tuple
-        
         eve_time = time.time() #evetime is utc, right?
-        
         time_diff =  eve_time - start_time
 
         return (spps * time_diff) 

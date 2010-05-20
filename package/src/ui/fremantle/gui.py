@@ -295,16 +295,16 @@ class CharacterSheetUI(BaseUI):
     def build_window(self, treeview, path, view_column):
         # TODO: this is a really long and ugly function, split it up somehow
 
-        win = hildon.StackableWindow()
-        win.show_all() 
-        hildon.hildon_gtk_window_set_progress_indicator(win, 1)
+        self.win = hildon.StackableWindow()
+        #win.show_all() 
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
         # main appmenu works for now
-        menu = self.create_menu(win)
+        menu = self.create_menu(self.win)
         # Attach menu to the window        
-        win.set_app_menu(menu)
+        self.win.set_app_menu(menu)
 
         pannable_area = hildon.PannableArea()
 
@@ -318,7 +318,7 @@ class CharacterSheetUI(BaseUI):
 
         self.sheet = self.controller.get_char_sheet(self.uid, self.char_id)
 
-        win.set_title(char_name)
+        self.win.set_title(char_name)
 
 
         hbox = gtk.HBox(False, 0)
@@ -357,10 +357,10 @@ class CharacterSheetUI(BaseUI):
         self.add_columns_to_skills_view(skills_treeview)
         vbox.pack_start(skills_treeview, False, False, 1)
 
-        win.add(pannable_area)
-        win.show_all()
+        self.win.add(pannable_area)
+        self.win.show_all()
 
-        hildon.hildon_gtk_window_set_progress_indicator(win, 0)
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
 
     def display_skill_in_training(self, vbox):
         skill = self.controller.get_skill_in_training(self.uid, self.char_id)
@@ -402,7 +402,6 @@ class CharacterSheetUI(BaseUI):
         self.add_label("<small><b>Corp:</b> %s</small>" % self.sheet.corporationName, box)
         self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
         self.live_sp_val = self.controller.get_sp(self.uid, self.char_id)
-        print self.live_sp_val
         self.live_sp = self.add_label("<small><b>Total SP:</b> %s</small>" %
                 self.live_sp_val, box)
         
@@ -445,13 +444,18 @@ class CharacterSheetUI(BaseUI):
         treeview.append_column(column)
 
 
-    def refresh_clicked(self, button, window):
-        hildon.hildon_gtk_window_set_progress_indicator(window, 1)
+    def refresh_clicked(self, button):
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
         self.skills_model.get_skills()
-        hildon.hildon_gtk_window_set_progress_indicator(window, 0)
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
 
 
     def update_live_sp(self):
+        # we don't want to keep the timer running in the background
+        # when this callback returns False, the timer destorys itself
+        if not self.win.get_is_topmost():
+            return False
+        
         self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
         self.live_sp.set_label("<small><b>Total SP:</b> %d</small>" %
                                 self.live_sp_val)
