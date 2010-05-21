@@ -415,7 +415,7 @@ class CharacterSheetUI(BaseUI):
         self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
 
         self.live_sp_val = self.controller.get_sp(self.uid, self.char_id)
-        self.live_sp = self.add_label("<small><b>Total SP:</b> %s</small>" %
+        self.live_sp = self.add_label("<small><b>Total SP:</b> %d</small>" %
                 self.live_sp_val, box)
         
         self.spps = self.controller.get_spps(self.uid, self.char_id)[0]
@@ -468,8 +468,11 @@ class CharacterSheetUI(BaseUI):
     def update_live_sp(self):
         # we don't want to keep the timer running in the background
         # when this callback returns False, the timer destorys itself
-        if not self.win.get_is_topmost():
-            return False
+       
+        # TODO: figure out why this doesn't work on the real device
+        #
+        #if not self.win.get_is_topmost():
+        #    return False
         
         self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
         self.live_sp.set_label("<small><b>Total SP:</b> %d</small>" %
