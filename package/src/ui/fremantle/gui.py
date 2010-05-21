@@ -24,15 +24,19 @@ import gobject
 
 import glib
 
+import validation
+
 from ui import models
 
 class BaseUI():
     
     about_name = 'mEveMon'
     about_text = ('Mobile character monitor for EVE Online')
-    about_authors = ['Ryan Campbell', 'Danny Campbell']
+    about_authors = ['Ryan Campbell <campbellr@gmail.com>',
+                     'Danny Campbell <danny.campbell@gmail.com>']
+
     about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.3'
+    app_version = '0.4'
 
     menu_items = ("Settings", "About", "Refresh")
 
@@ -185,17 +189,35 @@ class BaseUI():
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 
         dialog.show_all()
-        result = dialog.run()
-        if result == gtk.RESPONSE_OK:
-            self.controller.add_account(uidEntry.get_text(), apiEntry.get_text())
-            self.accounts_model.get_accounts()
-
         
+        result = dialog.run()
+        
+        valid_credentials = False
+
+        while not valid_credentials:
+            if result == gtk.RESPONSE_OK:
+                uid = uidEntry.get_text()
+                api_key = apiEntry.get_text()
+            
+                try:
+                    validation.uid(uid)
+                    validation.api_key(api_key)
+                except validation.ValidationError, e:
+                    self.report_error(e.message)
+                    result = dialog.run()
+                else:
+                    valid_credentials = True
+                    self.controller.add_account(uid, api_key)
+                    self.accounts_model.get_accounts()
+            else:
+                break
+
         dialog.destroy()
 
-        return result
+   
+    def report_error(self, error):
+        hildon.hildon_banner_show_information(self.win, '', error)
 
-    
     def about_clicked(self, button):
         dialog = gtk.AboutDialog()
         dialog.set_website(self.about_website)
@@ -226,15 +248,15 @@ class mEveMonUI(BaseUI):
         gtk.set_application_name("mEveMon")
     
         #create the main window
-        win = hildon.StackableWindow()
-        win.connect("destroy", self.controller.quit)
-        win.show_all()
-        hildon.hildon_gtk_window_set_progress_indicator(win, 1)
+        self.win = hildon.StackableWindow()
+        self.win.connect("destroy", self.controller.quit)
+        self.win.show_all()
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
 
         # Create menu
-        menu = self.create_menu(win)
+        menu = self.create_menu(self.win)
         # Attach menu to the window
-        win.set_app_menu(menu)
+        self.win.set_app_menu(menu)
 
         pannable_area = hildon.PannableArea()
 
@@ -252,11 +274,11 @@ class mEveMonUI(BaseUI):
 
         pannable_area.add(treeview)
 
-        win.add(pannable_area);
+        self.win.add(pannable_area);
         
-        win.show_all()
+        self.win.show_all()
 
-        hildon.hildon_gtk_window_set_progress_indicator(win, 0)
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
 
     
     def add_columns_to_treeview(self, treeview):
