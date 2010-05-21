@@ -27,12 +27,6 @@ import gobject
 from ui import models
 
 class BaseUI():
-    
-    about_name = 'mEveMon'
-    about_text = ('Mobile character monitor for EVE Online')
-    about_authors = ['Ryan Campbell', 'Danny Campbell']
-    about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.3'
 
     menu_items = ("Settings", "About", "Refresh")
 
@@ -191,12 +185,12 @@ class BaseUI():
 
     def about_clicked(self, button):
         dialog = gtk.AboutDialog()
-        dialog.set_website(self.about_website)
-        dialog.set_website_label(self.about_website)
-        dialog.set_name(self.about_name)
-        dialog.set_authors(self.about_authors)
-        dialog.set_comments(self.about_text)
-        dialog.set_version(self.app_version)
+        dialog.set_website(self.controller.about_website)
+        dialog.set_website_label(self.controller.about_website)
+        dialog.set_name(self.controller.about_name)
+        dialog.set_authors(self.controller.about_authors)
+        dialog.set_comments(self.controller.about_text)
+        dialog.set_version(self.controller.app_version)
         dialog.run()
         dialog.destroy()
 

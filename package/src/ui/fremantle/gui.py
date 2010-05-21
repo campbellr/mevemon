@@ -30,13 +30,6 @@ from ui import models
 
 class BaseUI():
     
-    about_name = 'mEveMon'
-    about_text = ('Mobile character monitor for EVE Online')
-    about_authors = ['Ryan Campbell <campbellr@gmail.com>',
-                     'Danny Campbell <danny.campbell@gmail.com>']
-
-    about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.4'
 
     menu_items = ("Settings", "About", "Refresh")
 
@@ -53,7 +46,7 @@ class BaseUI():
             elif command == "Settings":
                 button.connect("clicked", self.settings_clicked, window)
             elif command == "Refresh":
-                button.connect("clicked", self.refresh_clicked, window)
+                button.connect("clicked", self.refresh_clicked)
             else:
                 assert False, command
 
@@ -220,12 +213,12 @@ class BaseUI():
 
     def about_clicked(self, button):
         dialog = gtk.AboutDialog()
-        dialog.set_website(self.about_website)
-        dialog.set_website_label(self.about_website)
-        dialog.set_name(self.about_name)
-        dialog.set_authors(self.about_authors)
-        dialog.set_comments(self.about_text)
-        dialog.set_version(self.app_version)
+        dialog.set_website(self.controller.about_website)
+        dialog.set_website_label(self.controller.about_website)
+        dialog.set_name(self.controller.about_name)
+        dialog.set_authors(self.controller.about_authors)
+        dialog.set_comments(self.controller.about_text)
+        dialog.set_version(self.controller.app_version)
         dialog.run()
         dialog.destroy()
 
@@ -298,10 +291,10 @@ class mEveMonUI(BaseUI):
         treeview.append_column(column)
  
       
-    def refresh_clicked(self, button, window):
-        hildon.hildon_gtk_window_set_progress_indicator(window, 1)
+    def refresh_clicked(self, button):
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
         self.char_model.get_characters()
-        hildon.hildon_gtk_window_set_progress_indicator(window, 0)
+        hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
     
 
 class CharacterSheetUI(BaseUI):

@@ -48,6 +48,15 @@ class mEveMon():
 
     """
 
+    about_name = 'mEveMon'
+    about_text = ('Mobile character monitor for EVE Online')
+    about_authors = ['Ryan Campbell <campbellr@gmail.com>',
+                     'Danny Campbell <danny.campbell@gmail.com>']
+
+    about_website = 'http://mevemon.garage.maemo.org'
+    app_version = '0.4'
+
+
     GCONF_DIR = "/apps/maemo/mevemon"
 
     def __init__(self):
