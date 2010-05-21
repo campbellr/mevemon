@@ -298,9 +298,10 @@ class CharacterSheetUI(BaseUI):
         # TODO: this is a really long and ugly function, split it up somehow
 
         self.win = hildon.Window()
-        #self.win.show_all() 
 
         progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading character sheet...")
+
+        self.win.show_all() 
         progress_bar.set_fraction(0.4)
 
         # Create menu

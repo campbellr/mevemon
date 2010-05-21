@@ -303,8 +303,8 @@ class CharacterSheetUI(BaseUI):
         # TODO: this is a really long and ugly function, split it up somehow
 
         self.win = hildon.StackableWindow()
-        #self.win.show_all() 
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
+        self.win.show_all() 
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
