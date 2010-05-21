@@ -24,16 +24,13 @@ import gobject
 
 import glib
 
+from ui import models
 import validation
 
-from ui import models
-
 class BaseUI():
-    
-
     menu_items = ("Settings", "About", "Refresh")
 
-    def create_menu(self, window): 
+    def create_menu(self, window):
         menu = hildon.AppMenu()
 
         for command in self.menu_items:
@@ -64,18 +61,13 @@ class BaseUI():
         dialog = gtk.Dialog()
         dialog.set_transient_for(window)
         dialog.set_title("Settings")
-        
+
         pannable_area = hildon.PannableArea()
 
         dialog_vbox = dialog.vbox
 
         vbox = gtk.VBox(False, 1)
 
-        #acctsLabel = gtk.Label("Accounts:")
-        #acctsLabel.set_justify(gtk.JUSTIFY_LEFT)
-     
-        #vbox.pack_start(acctsLabel, False, False, 1)
-       
         self.accounts_model = models.AccountsModel(self.controller)
         
         accounts_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
@@ -94,10 +86,12 @@ class BaseUI():
         pannable_area.add_with_viewport(vbox)
         
         dialog_vbox.pack_start(pannable_area, True, True, 1)
-       
+      
+      
         dialog.show_all()
-        
+
         result = dialog.run()
+
         while(result != gtk.RESPONSE_DELETE_EVENT):
             if result == RESPONSE_NEW:
                 self.new_account_clicked(window)
@@ -110,17 +104,19 @@ class BaseUI():
             elif result == gtk.RESPONSE_OK:
                 self.char_model.get_characters()
                 break
-            
+        
             result = dialog.run()
 
         dialog.destroy()
 
+
+
     def get_selected_item(self, treeview, column):
         selection = treeview.get_selection()
-        model, miter = selection.get_selected() 
-        
+        model, miter = selection.get_selected()
+
         value = model.get_value(miter, column)
-        
+
         return value
 
     def edit_account(self, treeview):
@@ -128,14 +124,14 @@ class BaseUI():
         # pop up the account dialog
 
         self.accounts_model.get_accounts()
-         
+
     def delete_account(self, treeview):
-        uid = self.get_selected_item(treeview, 0) 
+        uid = self.get_selected_item(treeview, 0)
         self.controller.remove_account(uid)
         # refresh model
         self.accounts_model.get_accounts()
 
-    
+
     def add_columns_to_accounts(self, treeview):
         #Column 0 for the treeview
         renderer = gtk.CellRendererText()
@@ -149,6 +145,7 @@ class BaseUI():
                 markup=models.AccountsModel.C_CHARS)
         column.set_property("expand", True)
         treeview.append_column(column)
+
 
     def new_account_clicked(self, window):
         dialog = gtk.Dialog()
@@ -182,7 +179,6 @@ class BaseUI():
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 
         dialog.show_all()
-        
         result = dialog.run()
         
         valid_credentials = False
@@ -207,10 +203,10 @@ class BaseUI():
 
         dialog.destroy()
 
-   
+
     def report_error(self, error):
         hildon.hildon_banner_show_information(self.win, '', error)
-
+    
     def about_clicked(self, button):
         dialog = gtk.AboutDialog()
         dialog.set_website(self.controller.about_website)
@@ -233,14 +229,13 @@ class BaseUI():
 
         return label
 
-
 class mEveMonUI(BaseUI):
 
     def __init__(self, controller):
         self.controller = controller
         gtk.set_application_name("mEveMon")
-    
-        #create the main window
+
+        # create the main window
         self.win = hildon.StackableWindow()
         self.win.connect("destroy", self.controller.quit)
         self.win.show_all()
@@ -262,7 +257,6 @@ class mEveMonUI(BaseUI):
 
         self.char_model = models.CharacterListModel(self.controller)
         treeview.set_model(self.char_model)
-
         self.add_columns_to_treeview(treeview)
 
         pannable_area.add(treeview)
@@ -273,7 +267,6 @@ class mEveMonUI(BaseUI):
 
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
 
-    
     def add_columns_to_treeview(self, treeview):
         #Column 0 for the treeview
         renderer = gtk.CellRendererPixbuf()
@@ -290,7 +283,6 @@ class mEveMonUI(BaseUI):
         column.set_property("expand", True)
         treeview.append_column(column)
  
-      
     def refresh_clicked(self, button):
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
         self.char_model.get_characters()
@@ -311,14 +303,14 @@ class CharacterSheetUI(BaseUI):
         # TODO: this is a really long and ugly function, split it up somehow
 
         self.win = hildon.StackableWindow()
-        #win.show_all() 
+        #self.win.show_all() 
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
         # main appmenu works for now
         menu = self.create_menu(self.win)
-        # Attach menu to the window        
+        # Attach menu to the window
         self.win.set_app_menu(menu)
 
         pannable_area = hildon.PannableArea()
@@ -341,6 +333,7 @@ class CharacterSheetUI(BaseUI):
 
         portrait = gtk.Image()
         portrait.set_from_file(self.controller.get_portrait(char_name, 256))
+        portrait.show()
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
@@ -351,18 +344,20 @@ class CharacterSheetUI(BaseUI):
         vbox.pack_start(hbox, False, False, 0)
 
         self.fill_info(info_vbox)
-        
         self.fill_stats(info_vbox)
 
         separator = gtk.HSeparator()
         vbox.pack_start(separator, False, False, 5)
+        separator.show()
+
         
         self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
-        
+
         self.display_skill_in_training(vbox)
 
         separator = gtk.HSeparator()
         vbox.pack_start(separator, False, False, 0)
+        separator.show()
         
         self.add_label("<big>Skills:</big>", vbox, align="normal")
 
@@ -396,13 +391,17 @@ class CharacterSheetUI(BaseUI):
             self.add_label("<small>start time: %s\t\tend time: %s</small>" 
                     %(time.ctime(skill.trainingStartTime),
                 time.ctime(skill.trainingEndTime)), vbox, align="normal")
+
             progressbar = gtk.ProgressBar()
             fraction_completed = (time.time() - skill.trainingStartTime) / \
                     (skill.trainingEndTime - skill.trainingStartTime)
+
             progressbar.set_fraction(fraction_completed)
             align = gtk.Alignment(0.5, 0.5, 0.5, 0)
             vbox.pack_start(align, False, False, 5)
+            align.show()
             align.add(progressbar)
+            progressbar.show()
         else:
             self.add_label("<small>No skills are currently being trained</small>",
                     vbox, align="normal")
@@ -416,6 +415,7 @@ class CharacterSheetUI(BaseUI):
         self.add_label("", box, markup=False)
         self.add_label("<small><b>Corp:</b> %s</small>" % self.sheet.corporationName, box)
         self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
+
         self.live_sp_val = self.controller.get_sp(self.uid, self.char_id)
         self.live_sp = self.add_label("<small><b>Total SP:</b> %s</small>" %
                 self.live_sp_val, box)
@@ -425,7 +425,7 @@ class CharacterSheetUI(BaseUI):
         glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
 
     def fill_stats(self, box):
-        
+
         atr = self.sheet.attributes
 
         self.add_label("<small><b>I: </b>%d  <b>M: </b>%d  <b>C: </b>%d  " \
@@ -447,12 +447,13 @@ class CharacterSheetUI(BaseUI):
         column.set_property("expand", True)
         treeview.append_column(column)
 
-
+        #Column 2
         column = gtk.TreeViewColumn('Points', renderer,
                 markup=models.CharacterSkillsModel.C_SKILLPOINTS)
         column.set_property("expand", True)
         treeview.append_column(column)
 
+        #Column 3
         column = gtk.TreeViewColumn('Level', renderer, 
                 markup=models.CharacterSkillsModel.C_LEVEL)
         column.set_property("expand", True)

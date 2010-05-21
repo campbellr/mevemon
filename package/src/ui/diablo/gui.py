@@ -16,22 +16,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# DIABLO UI: Heavily based on Ry's Fremantle Python code. --danny
-
 import sys, time
 
 import gtk
 import hildon
 import gobject
 
+import glib
+
 from ui import models
+import validation
 
 class BaseUI():
-
     menu_items = ("Settings", "About", "Refresh")
 
     def create_menu(self, window):
         menu = gtk.Menu()
+
         for command in self.menu_items:
             # Create menu entries
             button = gtk.MenuItem(command)
@@ -47,7 +48,7 @@ class BaseUI():
 
             # Add entry to the view menu
             menu.append(button)
-            
+
         menu.show_all()
 
         return menu
@@ -59,6 +60,8 @@ class BaseUI():
         dialog = gtk.Dialog()
         dialog.set_transient_for(window)
         dialog.set_title("Settings")
+
+
 
         vbox = dialog.vbox
 
@@ -84,18 +87,17 @@ class BaseUI():
         #TODO: for some reason the scrollbar shows up in the middle of the
         # dialog. Why?
         #scrollbar = gtk.VScrollbar()
-        #vbox.add(scrollbar)
-
+        
         dialog.show_all()
 
         result = dialog.run()
-        
+
         while(result != gtk.RESPONSE_CANCEL):
             if result == RESPONSE_NEW:
                 self.new_account_clicked(window)
-            elif result == RESPONSE_EDIT:
-                # get the selected treeview item and pop up the account_box
-                self.edit_account(accounts_treeview)
+            #elif result == RESPONSE_EDIT:
+            #    # get the selected treeview item and pop up the account_box
+            #    self.edit_account(accounts_treeview)
             elif result == RESPONSE_DELETE:
                 # get the selected treeview item, and delete the gconf keys
                 self.delete_account(accounts_treeview)
@@ -133,9 +135,11 @@ class BaseUI():
     def add_columns_to_accounts(self, treeview):
         #Column 0 for the treeview
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('Account ID', renderer, text=0)
+        column = gtk.TreeViewColumn('User ID', renderer, 
+                text=models.AccountsModel.C_UID)
         column.set_property("expand", True)
         treeview.append_column(column)
+
         #Column 2 (characters) for the treeview
         column = gtk.TreeViewColumn('Characters', renderer, 
                 markup=models.AccountsModel.C_CHARS)
@@ -150,7 +154,7 @@ class BaseUI():
         vbox = dialog.vbox
     
         dialog.set_transient_for(window)
-        dialog.set_title("Settings")
+        dialog.set_title("New Account")
 
         uidLabel = gtk.Label("User ID:")
         uidLabel.set_justify(gtk.JUSTIFY_LEFT)
@@ -169,20 +173,38 @@ class BaseUI():
         apiEntry.set_property('is_focus', False)
 
         vbox.add(apiEntry)
-           
+       
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 
         dialog.show_all()
         result = dialog.run()
-
-        if result == gtk.RESPONSE_OK:
-            self.controller.add_account(uidEntry.get_text(), apiEntry.get_text())
-            self.accounts_model.get_accounts()
         
+        valid_credentials = False
+
+        while not valid_credentials:
+            if result == gtk.RESPONSE_OK:
+                uid = uidEntry.get_text()
+                api_key = apiEntry.get_text()
+            
+                try:
+                    validation.uid(uid)
+                    validation.api_key(api_key)
+                except validation.ValidationError, e:
+                    self.report_error(e.message)
+                    result = dialog.run()
+                else:
+                    valid_credentials = True
+                    self.controller.add_account(uid, api_key)
+                    self.accounts_model.get_accounts()
+            else:
+                break
+
         dialog.destroy()
 
-        return result
 
+    def report_error(self, error):
+        hildon.hildon_banner_show_information(self.win, '', error)
+    
     def about_clicked(self, button):
         dialog = gtk.AboutDialog()
         dialog.set_website(self.controller.about_website)
@@ -200,7 +222,10 @@ class BaseUI():
             label.set_use_markup(True)
         if align == "left":
             label.set_alignment(0, 0.5)
+
         box.pack_start(label, False, False, padding)
+
+        return label
 
 class mEveMonUI(BaseUI):
 
@@ -209,17 +234,17 @@ class mEveMonUI(BaseUI):
         gtk.set_application_name("mEveMon")
 
         # create the main window
-        win = hildon.Window()
-        win.connect("destroy", self.controller.quit)
-        win.show_all()
-        progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading overview...")
+        self.win = hildon.Window()
+        self.win.connect("destroy", self.controller.quit)
+        self.win.show_all()
+        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading overview...")
         progress_bar.set_fraction(0.4)
 
         # Create menu
-        menu = self.create_menu(win)
+        menu = self.create_menu(self.win)
 
         # Attach menu to the window
-        win.set_menu(menu)
+        self.win.set_menu(menu)
 
         character_win = CharacterSheetUI(self.controller)
 
@@ -231,8 +256,8 @@ class mEveMonUI(BaseUI):
         self.add_columns_to_treeview(treeview)
 
         # add the treeview with scrollbar --danny
-        win.add_with_scrollbar(treeview)
-        win.show_all()
+        self.win.add_with_scrollbar(treeview)
+        self.win.show_all()
 
         progress_bar.set_fraction(1)
         progress_bar.destroy()
@@ -242,59 +267,64 @@ class mEveMonUI(BaseUI):
         renderer = gtk.CellRendererPixbuf()
         column = gtk.TreeViewColumn()
         column.pack_start(renderer, True)
-        column.add_attribute(renderer, "pixbuf", 0)
+        column.add_attribute(renderer, "pixbuf", 
+                models.CharacterListModel.C_PORTRAIT)
         treeview.append_column(column)
 
         #Column 1 for the treeview
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('Character Name', renderer, text=1)
+        column = gtk.TreeViewColumn('Character Name', renderer, 
+                text=models.CharacterListModel.C_NAME)
         column.set_property("expand", True)
         treeview.append_column(column)
  
-    def refresh_clicked(self, button, window):
-        progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading characters...")
+    def refresh_clicked(self, button):
+        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading characters...")
         progress_bar.set_fraction(1)
         self.char_model.get_characters()
         progress_bar.destroy()
 
 class CharacterSheetUI(BaseUI):
-    
+    UPDATE_INTERVAL = 1
+
     def __init__(self, controller):
         self.controller = controller
         self.sheet = None
         self.char_id = None
         self.skills_model = None
 
+
     def build_window(self, treeview, path, view_column):
         # TODO: this is a really long and ugly function, split it up somehow
 
-        win = hildon.Window()
-        win.show_all() 
+        self.win = hildon.Window()
+        #self.win.show_all() 
 
-        progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading character sheet...")
+        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading character sheet...")
         progress_bar.set_fraction(0.4)
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
         # main appmenu works for now
-        menu = self.create_menu(win)
+        menu = self.create_menu(self.win)
         # Attach menu to the window
-        win.set_menu(menu)
+        self.win.set_menu(menu)
 
         model = treeview.get_model()
         miter = model.get_iter(path)
         
         # column 0 is the portrait, column 1 is name
         char_name = model.get_value(miter, 1)
-        uid = model.get_value(miter, 2)
+        self.uid = model.get_value(miter, 2)
         self.char_id = self.controller.char_name2id(char_name)
-        
-        self.sheet = self.controller.get_char_sheet(uid, self.char_id)
 
-        win.set_title(char_name)
-        
+        self.sheet = self.controller.get_char_sheet(self.uid, self.char_id)
+
+        self.win.set_title(char_name)
+
+
         hbox = gtk.HBox(False, 0)
-        info_vbox = gtk.VBox(False, 1)
+        info_vbox = gtk.VBox(False, 0)
 
         portrait = gtk.Image()
         portrait.set_from_file(self.controller.get_portrait(char_name, 256))
@@ -302,11 +332,10 @@ class CharacterSheetUI(BaseUI):
 
         hbox.pack_start(portrait, False, False, 10)
         hbox.pack_start(info_vbox, False, False, 5)
-        
+
         vbox = gtk.VBox(False, 0)
 
         vbox.pack_start(hbox, False, False, 0)
-
 
         self.fill_info(info_vbox)
         self.fill_stats(info_vbox)
@@ -314,10 +343,34 @@ class CharacterSheetUI(BaseUI):
         separator = gtk.HSeparator()
         vbox.pack_start(separator, False, False, 5)
         separator.show()
- 
+
         
         self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
-        skill = self.controller.get_skill_in_training(uid, self.char_id)
+
+        self.display_skill_in_training(vbox)
+
+        separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, False, 0)
+        separator.show()
+        
+        self.add_label("<big>Skills:</big>", vbox, align="normal")
+
+
+        self.skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
+        skills_treeview = gtk.TreeView(model = skills_model)
+        skills_treeview.set_model(self.skills_model)
+        self.add_columns_to_skills_view(skills_treeview)
+
+        vbox.pack_start(skills_treeview, False, False, 0)
+
+        self.win.add_with_scrollbar(vbox)
+        self.win.show_all()
+
+        progress_bar.set_fraction(1)
+        progress_bar.destroy()
+
+    def display_skill_in_training(self, vbox):
+        skill = self.controller.get_skill_in_training(self.uid, self.char_id)
         
         if skill.skillInTraining:
 
@@ -332,49 +385,41 @@ class CharacterSheetUI(BaseUI):
                 
             self.add_label("%s <small>(Level %d)</small>" % (skill_name, skill.trainingToLevel),
                     vbox, align="normal")
-            self.add_label("<small>start time: %s\t\tend time: %s</small>" %(time.ctime(skill.trainingStartTime),
+            self.add_label("<small>start time: %s\t\tend time: %s</small>" 
+                    %(time.ctime(skill.trainingStartTime),
                 time.ctime(skill.trainingEndTime)), vbox, align="normal")
-            
+
             progressbar = gtk.ProgressBar()
             fraction_completed = (time.time() - skill.trainingStartTime) / \
                     (skill.trainingEndTime - skill.trainingStartTime)
-            
+
             progressbar.set_fraction(fraction_completed)
             align = gtk.Alignment(0.5, 0.5, 0.5, 0)
             vbox.pack_start(align, False, False, 5)
             align.show()
             align.add(progressbar)
             progressbar.show()
-
         else:
-            self.add_label("<small>No skills are currently being trained</small>", vbox, align="normal")
-
-        separator = gtk.HSeparator()
-        vbox.pack_start(separator, False, False, 0)
-        separator.show()
-        
-        self.add_label("<big>Skills:</big>", vbox, align="normal")
+            self.add_label("<small>No skills are currently being trained</small>",
+                    vbox, align="normal")
 
 
-        skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
-        skills_treeview = gtk.TreeView(model = skills_model)
-        skills_treeview.set_model(skills_model)
-        self.add_columns_to_skills_view(skills_treeview)
-
-        vbox.pack_start(skills_treeview, False, False, 0)
-
-        win.add_with_scrollbar(vbox)
-        win.show_all()
-
-        progress_bar.set_fraction(1)
-        progress_bar.destroy()
 
     def fill_info(self, box):
         self.add_label("<big><big>%s</big></big>" % self.sheet.name, box)
-        self.add_label("<small>%s %s %s</small>" % (self.sheet.gender, self.sheet.race, self.sheet.bloodLine), box)
+        self.add_label("<small>%s %s %s</small>" % (self.sheet.gender, 
+            self.sheet.race, self.sheet.bloodLine), box)
         self.add_label("", box, markup=False)
         self.add_label("<small><b>Corp:</b> %s</small>" % self.sheet.corporationName, box)
         self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
+
+        self.live_sp_val = self.controller.get_sp(self.uid, self.char_id)
+        self.live_sp = self.add_label("<small><b>Total SP:</b> %s</small>" %
+                self.live_sp_val, box)
+        
+        self.spps = self.controller.get_spps(self.uid, self.char_id)[0]
+
+        glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
 
     def fill_stats(self, box):
 
@@ -388,32 +433,49 @@ class CharacterSheetUI(BaseUI):
     def add_columns_to_skills_view(self, treeview):
         #Column 0 for the treeview
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('Skill Name', renderer, markup=0)
+        column = gtk.TreeViewColumn('Skill Name', renderer, 
+                markup=models.CharacterSkillsModel.C_NAME)
         column.set_property("expand", True)
         treeview.append_column(column)
         
         #Column 1 for the treeview
-        column = gtk.TreeViewColumn('Rank', renderer, markup=1)
-        column.set_property("expand", True)
-        treeview.append_column(column)
-        
-        #Column 2
-        renderer = gtk.CellRendererText()
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('Points', renderer, markup=2)
-        column.set_property("expand", True)
-        treeview.append_column(column)
-        
-        #Column 3
-        column = gtk.TreeViewColumn('Level', renderer, markup=3)
+        column = gtk.TreeViewColumn('Rank', renderer, 
+                markup=models.CharacterSkillsModel.C_RANK)
         column.set_property("expand", True)
         treeview.append_column(column)
 
-    def refresh_clicked(self, button, window):
-        progress_bar = hildon.hildon_banner_show_progress(win, None, "Loading overview...")
+        #Column 2
+        column = gtk.TreeViewColumn('Points', renderer,
+                markup=models.CharacterSkillsModel.C_SKILLPOINTS)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+
+        #Column 3
+        column = gtk.TreeViewColumn('Level', renderer, 
+                markup=models.CharacterSkillsModel.C_LEVEL)
+        column.set_property("expand", True)
+        treeview.append_column(column)
+
+
+    def refresh_clicked(self, button):
+        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading overview...")
         progress_bar.set_fraction(1)
         self.skills_model.get_skills()
         progress_bar.destroy()
+
+
+    def update_live_sp(self):
+        # we don't want to keep the timer running in the background
+        # when this callback returns False, the timer destorys itself
+        if not self.win.get_is_topmost():
+            return False
+        
+        self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
+        self.live_sp.set_label("<small><b>Total SP:</b> %d</small>" %
+                                self.live_sp_val)
+
+        return True
+
 
 if __name__ == "__main__":
     main()
