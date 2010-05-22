@@ -1,6 +1,5 @@
 mevemon (0.4-3) stable; urgency=low
 
-    * Fix bug #5785
-    * Format numbers with commas
+    * Better fix for bug #5785
 
- -- Ryan Campbell <campbellr@gmail.com>  Fri, 21 May 2010 22:58:49 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Fri, 21 May 2010 23:33:23 -0007
