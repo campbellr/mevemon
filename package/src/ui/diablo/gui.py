@@ -371,6 +371,8 @@ class CharacterSheetUI(BaseUI):
         progress_bar.set_fraction(1)
         progress_bar.destroy()
 
+        glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
+
     def display_skill_in_training(self, vbox):
         skill = self.controller.get_skill_in_training(self.uid, self.char_id)
         
@@ -422,7 +424,6 @@ class CharacterSheetUI(BaseUI):
         
         self.spps = self.controller.get_spps(self.uid, self.char_id)[0]
 
-        glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
 
     def fill_stats(self, box):
 

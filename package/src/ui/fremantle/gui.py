@@ -372,6 +372,9 @@ class CharacterSheetUI(BaseUI):
         self.win.show_all()
 
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
+        
+        # if we start the timer too early, get_is_topmost() returns False
+        glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
 
     def display_skill_in_training(self, vbox):
         skill = self.controller.get_skill_in_training(self.uid, self.char_id)
@@ -424,7 +427,6 @@ class CharacterSheetUI(BaseUI):
         
         self.spps = self.controller.get_spps(self.uid, self.char_id)[0]
 
-        glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
 
     def fill_stats(self, box):
 
