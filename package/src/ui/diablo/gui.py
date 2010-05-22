@@ -22,8 +22,6 @@ import gtk
 import hildon
 import gobject
 
-import glib
-
 from ui import models
 import validation
 import util
@@ -252,6 +250,7 @@ class mEveMonUI(BaseUI):
         # create the treeview --danny
         self.char_model = models.CharacterListModel(self.controller)
         treeview = gtk.TreeView(model = self.char_model)
+        treeview.set_grid_lines(gtk.TREE_VIEW_GRID_LINES_HORIZONTAL)
         treeview.connect('row-activated', character_win.build_window)
         treeview.set_model(self.char_model)
         self.add_columns_to_treeview(treeview)
@@ -286,7 +285,8 @@ class mEveMonUI(BaseUI):
         progress_bar.destroy()
 
 class CharacterSheetUI(BaseUI):
-    UPDATE_INTERVAL = 1
+    #time between live sp updates (in milliseconds)
+    UPDATE_INTERVAL = 1000
 
     def __init__(self, controller):
         self.controller = controller
@@ -359,8 +359,7 @@ class CharacterSheetUI(BaseUI):
 
 
         self.skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
-        skills_treeview = gtk.TreeView(model = skills_model)
-        skills_treeview.set_model(self.skills_model)
+        skills_treeview = gtk.TreeView(model=self.skills_model)
         self.add_columns_to_skills_view(skills_treeview)
 
         vbox.pack_start(skills_treeview, False, False, 0)
@@ -370,13 +369,15 @@ class CharacterSheetUI(BaseUI):
 
         progress_bar.set_fraction(1)
         progress_bar.destroy()
-
-        self.timer = glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
+        
+        # diablo doesnt have a glib module, but gobject module seems to have
+        # the same functions...
+        self.timer = gobject.timeout_add(self.UPDATE_INTERVAL, self.update_live_sp)
         self.win.connect("destroy", self.back)
 
-        def back(self, widget):
-            glib.source_remove(self.timer)
-            gtk.Window.destroy(self.win)
+    def back(self, widget):
+        gobject.source_remove(self.timer)
+        gtk.Window.destroy(self.win)
 
     def display_skill_in_training(self, vbox):
         skill = self.controller.get_skill_in_training(self.uid, self.char_id)
@@ -474,7 +475,7 @@ class CharacterSheetUI(BaseUI):
 
 
     def update_live_sp(self):
-        self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
+        self.live_sp_val = self.live_sp_val + self.spps * (self.UPDATE_INTERVAL / 1000)
         self.live_sp.set_label("<small><b>Total SP:</b> %s</small>" %
                                 util.comma(int(self.live_sp_val)))
 
