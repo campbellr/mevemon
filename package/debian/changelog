@@ -1,5 +1,5 @@
 mevemon (0.4-5) stable; urgency=low
 
-    * Better fix for bug #5785
+    * Fix several bugs in Diablo verson
 
- -- Ryan Campbell <campbellr@gmail.com>  Fri, 21 May 2010 23:33:23 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Sat, 22 May 2010 17:21:43 -0007

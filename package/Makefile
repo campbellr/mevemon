@@ -5,7 +5,7 @@
 #edit these when creating a new release
 MAJOR_VER='0'
 MINOR_VER='4'
-PKG_VER='4'
+PKG_VER='5'
 
 compile:
 	perl -ni -e 'print; exit if /^XB-Maemo-Icon-26:$$/' debian/control
