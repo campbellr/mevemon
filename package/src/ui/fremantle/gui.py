@@ -22,8 +22,6 @@ import gtk
 import hildon
 import gobject
 
-import glib
-
 from ui import models
 import validation
 import util
@@ -374,12 +372,12 @@ class CharacterSheetUI(BaseUI):
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
         
         # if we start the timer too early, get_is_topmost() returns False
-        self.timer = glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
+        self.timer = gobject.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
 
         self.win.connect("destroy", self.back)
 
     def back(self, widget):
-        glib.source_remove(self.timer)
+        gobject.source_remove(self.timer)
         gtk.Window.destroy(self.win)
 
 
