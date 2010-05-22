@@ -374,7 +374,14 @@ class CharacterSheetUI(BaseUI):
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
         
         # if we start the timer too early, get_is_topmost() returns False
-        glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
+        self.timer = glib.timeout_add_seconds(self.UPDATE_INTERVAL, self.update_live_sp)
+
+        self.win.connect("destroy", self.back)
+
+    def back(self, widget):
+        glib.source_remove(self.timer)
+        gtk.Window.destroy(self.win)
+
 
     def display_skill_in_training(self, vbox):
         skill = self.controller.get_skill_in_training(self.uid, self.char_id)
@@ -471,14 +478,7 @@ class CharacterSheetUI(BaseUI):
 
 
     def update_live_sp(self):
-        # we don't want to keep the timer running in the background
-        # when this callback returns False, the timer destorys itself
-        
-        # TODO: figure out why this doesn't work on the real device
-        #
-        #if not self.win.get_is_topmost():
-        #    return False
-        
+        print 'tick'
         self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
         self.live_sp.set_label("<small><b>Total SP:</b> %s</small>" %
                                 util.comma(int(self.live_sp_val)))

@@ -1,4 +1,4 @@
-mevemon (0.4-2) stable; urgency=low
+mevemon (0.4-3) stable; urgency=low
 
     * Fix bug #5785
     * Format numbers with commas
