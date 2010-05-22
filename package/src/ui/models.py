@@ -1,4 +1,5 @@
 import gtk
+import util
 
 class AccountsModel(gtk.ListStore):
     C_UID, C_APIKEY, C_CHARS = range(3)
@@ -91,6 +92,6 @@ class CharacterSkillsModel(gtk.ListStore):
                     liter = self.append()
                     self.set(liter, self.C_NAME, "%s" % skill.typeName,
                                       self.C_RANK, "<small>(Rank %d)</small>" % skill.rank,
-                                      self.C_SKILLPOINTS, "SP: %d" % trained.skillpoints,
+                                      self.C_SKILLPOINTS, "SP: %s" % util.comma(trained.skillpoints),
                                       self.C_LEVEL, "Level %d" % trained.level)
 

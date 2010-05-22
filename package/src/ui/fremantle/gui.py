@@ -26,6 +26,7 @@ import glib
 
 from ui import models
 import validation
+import util
 
 class BaseUI():
     menu_items = ("Settings", "About", "Refresh")
@@ -414,11 +415,12 @@ class CharacterSheetUI(BaseUI):
             self.sheet.race, self.sheet.bloodLine), box)
         self.add_label("", box, markup=False)
         self.add_label("<small><b>Corp:</b> %s</small>" % self.sheet.corporationName, box)
-        self.add_label("<small><b>Balance:</b> %s ISK</small>" % self.sheet.balance, box)
+        self.add_label("<small><b>Balance:</b> %s ISK</small>" % 
+                util.comma(self.sheet.balance), box)
 
         self.live_sp_val = self.controller.get_sp(self.uid, self.char_id)
-        self.live_sp = self.add_label("<small><b>Total SP:</b> %d</small>" %
-                self.live_sp_val, box)
+        self.live_sp = self.add_label("<small><b>Total SP:</b> %s</small>" %
+                util.comma(int(self.live_sp_val)), box)
         
         self.spps = self.controller.get_spps(self.uid, self.char_id)[0]
 
@@ -476,8 +478,8 @@ class CharacterSheetUI(BaseUI):
         #    return False
         
         self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
-        self.live_sp.set_label("<small><b>Total SP:</b> %d</small>" %
-                                self.live_sp_val)
+        self.live_sp.set_label("<small><b>Total SP:</b> %s</small>" %
+                                util.comma(int(self.live_sp_val)))
 
         return True
 
