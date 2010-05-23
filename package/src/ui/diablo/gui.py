@@ -174,6 +174,7 @@ class BaseUI():
         vbox.add(apiEntry)
        
         ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
 
         dialog.show_all()
         result = dialog.run()
