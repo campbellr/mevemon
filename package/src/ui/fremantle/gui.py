@@ -476,7 +476,6 @@ class CharacterSheetUI(BaseUI):
 
 
     def update_live_sp(self):
-        print 'tick'
         self.live_sp_val = self.live_sp_val + self.spps * self.UPDATE_INTERVAL
         self.live_sp.set_label("<small><b>Total SP:</b> %s</small>" %
                                 util.comma(int(self.live_sp_val)))
