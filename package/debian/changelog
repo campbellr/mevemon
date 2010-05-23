@@ -1,5 +1,5 @@
-mevemon (0.4-5) stable; urgency=low
+mevemon (0.4-6) stable; urgency=low
 
-    * Fix several bugs in Diablo verson
+    * Use gobject instead of glib
 
- -- Ryan Campbell <campbellr@gmail.com>  Sat, 22 May 2010 17:21:43 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Sat, 22 May 2010 18:11:26 -0007
