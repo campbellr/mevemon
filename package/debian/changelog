@@ -1,5 +1,5 @@
-mevemon (0.4-6) stable; urgency=low
+mevemon (0.4-7) stable; urgency=low
 
-    * Use gobject instead of glib
+    * Allow user to input lower-case API key
 
- -- Ryan Campbell <campbellr@gmail.com>  Sat, 22 May 2010 18:11:26 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Mon, 24 May 2010 12:27:03 -0007

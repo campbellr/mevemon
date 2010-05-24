@@ -3,6 +3,7 @@
 *.pyc
 *.swp
 *~
+*.core
 package/debian/mevemon/
 configure-stamp
 build-stamp
