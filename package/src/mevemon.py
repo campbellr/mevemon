@@ -69,6 +69,7 @@ class mEveMon():
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
                 apicache.cache_handler(debug=False))
         self.gui = gui.mEveMonUI(self)
+        self.gui.run()
 
     def run(self):
         gtk.main()
@@ -131,7 +132,8 @@ class mEveMon():
 
         try:
             auth = self.cached_api.auth(userID=uid, apiKey=api_key)
-        except:
+        except Exception, e:
+            self.gui.report_error(str(e))
             traceback.print_exc()
             return None
 
@@ -144,7 +146,8 @@ class mEveMon():
         """
         try:
             sheet = self.get_auth(uid).character(char_id).CharacterSheet()
-        except:
+        except Exception, e:
+            self.gui.report_error(str(e))
             # TODO: we should really have a logger that logs this error somewhere
             traceback.print_exc()
             return None
@@ -182,7 +185,8 @@ class mEveMon():
         try:
             chars = self.cached_api.eve.CharacterName(ids=char_id).characters
             name = chars[0].characterName
-        except:
+        except Exception, e:
+            self.gui.report_error(str(e))
             traceback.print_exc()
             return None
 
@@ -199,7 +203,8 @@ class mEveMon():
             chars = self.cached_api.eve.CharacterID(names=name).characters
             char_id = chars[0].characterID
             char_name = chars[0].name
-        except:
+        except Exception, e:
+            self.gui.report_error(str(e))
             traceback.print_exc()
             return None
 
@@ -216,7 +221,8 @@ class mEveMon():
             try:
                 api_char_list = auth.account.Characters()
                 char_list = [char.name for char in api_char_list.characters]
-            except:
+            except Exception, e:
+                self.gui.report_error(str(e))
                 traceback.print_exc()
                 return None
 
@@ -231,6 +237,7 @@ class mEveMon():
         pair to the list, it appends an 'error message' 
 
         """
+
         ui_char_list = []
         err_img = "/usr/share/mevemon/imgs/error.jpg"
 
@@ -267,7 +274,8 @@ class mEveMon():
         """
         try:
             tree = self.cached_api.eve.SkillTree()
-        except:
+        except Exception, e:
+            self.gui.report_error(str(e))
             traceback.print_exc()
             return None
         
@@ -280,7 +288,8 @@ class mEveMon():
         """
         try:
             skill = self.get_auth(uid).character(char_id).SkillInTraining()
-        except:
+        except Exception, e:
+            self.gui.report_error(str(e))
             traceback.print_exc()
             return None
 

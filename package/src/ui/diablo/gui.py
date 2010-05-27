@@ -234,6 +234,7 @@ class mEveMonUI(BaseUI):
         self.controller = controller
         gtk.set_application_name("mEveMon")
 
+    def run(self):
         # create the main window
         self.win = hildon.Window()
         self.win.connect("destroy", self.controller.quit)
