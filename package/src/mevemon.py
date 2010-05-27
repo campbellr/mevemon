@@ -166,9 +166,13 @@ class mEveMon():
         
         for uid, api_key in acct_dict.items():
             auth = self.cached_api.auth(userID=uid, apiKey=api_key)
-            api_char_list = auth.account.Characters()
-            
-            for character in api_char_list.characters:
+            try:
+                api_char_list = auth.account.Characters()
+                characters = api_char_list.characters
+            except:
+                characters = []
+
+            for character in characters:
                 if character.characterID == char_id:
                     return uid
 
@@ -240,8 +244,9 @@ class mEveMon():
 
         ui_char_list = []
         err_img = "/usr/share/mevemon/imgs/error.jpg"
+        err_txt = "Problem fetching info for account"
 
-        placeholder_chars = ("Please check your API settings.", err_img, "0")
+        placeholder_chars = (err_txt, err_img, None)
         
         acct_dict = self.get_accounts()
         if not acct_dict:
@@ -251,7 +256,7 @@ class mEveMon():
             char_names = self.get_chars_from_acct(uid)
             
             if not char_names:
-                ui_char_list.append(placeholder_chars)
+                ui_char_list.append((err_txt + "\t(UID: %s)" % uid, err_img, None))
             else:
                 # append each char we get to the list we'll return to the
                 # UI --danny

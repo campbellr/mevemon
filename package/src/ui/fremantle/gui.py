@@ -250,12 +250,11 @@ class mEveMonUI(BaseUI):
 
         pannable_area = hildon.PannableArea()
 
-        character_win = CharacterSheetUI(self.controller)
 
         # gtk.HILDON_UI_MODE_NORMAL -> not selection in the treeview
         # gtk.HILDON_UI_MODE_EDIT -> selection in the treeview
         treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
-        treeview.connect('row-activated', character_win.build_window)
+        treeview.connect('row-activated', self.do_charactersheet)
 
         self.char_model = models.CharacterListModel(self.controller)
         treeview.set_model(self.char_model)
@@ -291,17 +290,36 @@ class mEveMonUI(BaseUI):
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
     
 
+    def do_charactersheet(self, treeview, path, view_column):
+
+        model = treeview.get_model()
+        miter = model.get_iter(path)
+        
+        # column 0 is the portrait, column 1 is name
+        char_name = model.get_value(miter, 1)
+        uid = model.get_value(miter, 2)
+        
+        if uid:
+            CharacterSheetUI(self.controller, char_name, uid)
+        else:
+            pass
+
+
 class CharacterSheetUI(BaseUI):
     UPDATE_INTERVAL = 1
 
-    def __init__(self, controller):
+    def __init__(self, controller, char_name, uid):
         self.controller = controller
+        self.char_name = char_name
+        self.uid = uid
         self.sheet = None
         self.char_id = None
         self.skills_model = None
+        
+        self.build_window()
 
 
-    def build_window(self, treeview, path, view_column):
+    def build_window(self):
         # TODO: this is a really long and ugly function, split it up somehow
 
         self.win = hildon.StackableWindow()
@@ -317,24 +335,18 @@ class CharacterSheetUI(BaseUI):
 
         pannable_area = hildon.PannableArea()
 
-        model = treeview.get_model()
-        miter = model.get_iter(path)
-        
-        # column 0 is the portrait, column 1 is name
-        char_name = model.get_value(miter, 1)
-        self.uid = model.get_value(miter, 2)
-        self.char_id = self.controller.char_name2id(char_name)
+        self.char_id = self.controller.char_name2id(self.char_name)
 
         self.sheet = self.controller.get_char_sheet(self.uid, self.char_id)
 
-        self.win.set_title(char_name)
+        self.win.set_title(self.char_name)
 
 
         hbox = gtk.HBox(False, 0)
         info_vbox = gtk.VBox(False, 0)
 
         portrait = gtk.Image()
-        portrait.set_from_file(self.controller.get_portrait(char_name, 256))
+        portrait.set_from_file(self.controller.get_portrait(self.char_name, 256))
         portrait.show()
 
         hbox.pack_start(portrait, False, False, 10)
