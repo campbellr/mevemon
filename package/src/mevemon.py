@@ -54,7 +54,7 @@ class mEveMon():
                      'Danny Campbell <danny.campbell@gmail.com>']
 
     about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.4'
+    app_version = '0.4-8'
 
 
     GCONF_DIR = "/apps/maemo/mevemon"

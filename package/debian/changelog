@@ -1,5 +1,5 @@
-mevemon (0.4-7) stable; urgency=low
+mevemon (0.4-8) stable; urgency=low
 
-    * Allow user to input lower-case API key
+    * Report errors in UI, and minor bugfixes
 
- -- Ryan Campbell <campbellr@gmail.com>  Mon, 24 May 2010 12:27:03 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Sat, 29 May 2010 23:02:48 -0007
