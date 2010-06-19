@@ -185,9 +185,7 @@ class BaseUI():
         while not valid_credentials:
             if result == gtk.RESPONSE_OK:
                 uid = uidEntry.get_text()
-                # auth() fails if api_key has lower-case characters
-                api_key = apiEntry.get_text().upper()
-            
+                api_key = apiEntry.get_text()
                 try:
                     validation.uid(uid)
                     validation.api_key(api_key)

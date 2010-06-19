@@ -21,8 +21,9 @@ def api_key(api_key):
         raise ValidationError("API Key must be %s characters" % KEY_SIZE)
     elif not api_key.isalnum():
         raise ValidationError("API Key must only contain alphanumeric characters")
-    elif not api_key.isupper():
-        raise ValidationError("API Key must only contain upper-case characters")
+    # apparently the api key CAN contain lower case characters...
+    #elif not api_key.isupper():
+    #    raise ValidationError("API Key must only contain upper-case characters")
 
     return True
 
