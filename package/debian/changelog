@@ -1,5 +1,5 @@
-mevemon (0.4-8) stable; urgency=low
+mevemon (0.4-9) stable; urgency=low
 
-    * Report errors in UI, and minor bugfixes
+    * Don't automatically convert API key to uppercase
 
- -- Ryan Campbell <campbellr@gmail.com>  Sat, 29 May 2010 23:02:48 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Sat, 19 Jun 2010 13:30:32 -0007
