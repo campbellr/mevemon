@@ -20,17 +20,15 @@ import gtk
 import hildon
 import gobject
 
-from characterSheet import CharacterSheetUI
+from ui.fremantle.characterSheet import CharacterSheetUI
 import ui.models as models
 import validation
-import ui.fremantle.base as base
+from ui.fremantle.menu import Menu
 
-class mEveMonUI(base.BaseUI):
-
+class mEveMonUI:
     def __init__(self, controller):
         self.controller = controller
         gtk.set_application_name("mEveMon")
-
 
     def run(self):
         # create the main window
@@ -40,54 +38,29 @@ class mEveMonUI(base.BaseUI):
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
 
         # Create menu
-        menu = self.create_menu(self.win)
+        menu = Menu(self.win, self.controller)
         # Attach menu to the window
         self.win.set_app_menu(menu)
 
         pannable_area = hildon.PannableArea()
-
-
+        
         # gtk.HILDON_UI_MODE_NORMAL -> not selection in the treeview
         # gtk.HILDON_UI_MODE_EDIT -> selection in the treeview
-        treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
-        treeview.connect('row-activated', self.do_charactersheet)
+        self.treeview = CharactersTreeView(gtk.HILDON_UI_MODE_NORMAL, self.controller)
+        self.treeview.connect('row-activated', self.do_charactersheet)
 
-        self.char_model = models.CharacterListModel(self.controller)
-        treeview.set_model(self.char_model)
-        self.add_columns_to_treeview(treeview)
-
-        pannable_area.add(treeview)
-
+        pannable_area.add(self.treeview)
         self.win.add(pannable_area);
-        
         self.win.show_all()
 
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
 
-    def add_columns_to_treeview(self, treeview):
-        #Column 0 for the treeview
-        renderer = gtk.CellRendererPixbuf()
-        column = gtk.TreeViewColumn()
-        column.pack_start(renderer, True)
-        column.add_attribute(renderer, "pixbuf", 
-                models.CharacterListModel.C_PORTRAIT)
-        treeview.append_column(column)
-
-        #Column 1 for the treeview
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('Character Name', renderer, 
-                text=models.CharacterListModel.C_NAME)
-        column.set_property("expand", True)
-        treeview.append_column(column)
- 
     def refresh_clicked(self, button):
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 1)
-        self.char_model.get_characters()
+        self.treeview.refresh()
         hildon.hildon_gtk_window_set_progress_indicator(self.win, 0)
-    
 
     def do_charactersheet(self, treeview, path, view_column):
-
         model = treeview.get_model()
         miter = model.get_iter(path)
         
@@ -101,4 +74,30 @@ class mEveMonUI(base.BaseUI):
             pass
 
 
+class CharactersTreeView(hildon.GtkTreeView):
+    def __init__(self, mode, controller):
+        self.controller = controller
+        hildon.GtkTreeView.__init__(self, mode)
 
+        self.char_model = models.CharacterListModel(self.controller)
+        self.set_model(self.char_model)
+        self.add_columns()
+
+    def add_columns(self):
+        #Column 0 for the treeview
+        renderer = gtk.CellRendererPixbuf()
+        column = gtk.TreeViewColumn()
+        column.pack_start(renderer, True)
+        column.add_attribute(renderer, "pixbuf", 
+                models.CharacterListModel.C_PORTRAIT)
+        self.append_column(column)
+
+        #Column 1 for the treeview
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('Character Name', renderer, 
+                text=models.CharacterListModel.C_NAME)
+        column.set_property("expand", True)
+        self.append_column(column)
+
+    def refresh():
+        self.char_model.get_characters()

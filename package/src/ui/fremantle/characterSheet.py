@@ -22,10 +22,10 @@ import gtk
 import gobject
 
 import util
-import ui.fremantle.base as base
 import ui.models as models
+from menu import Menu
 
-class CharacterSheetUI(base.BaseUI):
+class CharacterSheetUI:
     UPDATE_INTERVAL = 1
 
     def __init__(self, controller, char_name, uid):
@@ -49,7 +49,7 @@ class CharacterSheetUI(base.BaseUI):
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
         # main appmenu works for now
-        menu = self.create_menu(self.win)
+        menu = Menu(self.win, self.controller)
         # Attach menu to the window
         self.win.set_app_menu(menu)
 
@@ -85,7 +85,7 @@ class CharacterSheetUI(base.BaseUI):
         separator.show()
 
         
-        self.add_label("<big>Skill in Training:</big>", vbox, align="normal")
+        self.add_label("<big>Skill in Training:</big>", vbox, align='normal')
 
         self.display_skill_in_training(vbox)
 
@@ -93,7 +93,7 @@ class CharacterSheetUI(base.BaseUI):
         vbox.pack_start(separator, False, False, 0)
         separator.show()
         
-        self.add_label("<big>Skills:</big>", vbox, align="normal")
+        self.add_label("<big>Skills:</big>", vbox, align='normal')
 
         skills_treeview = hildon.GtkTreeView(gtk.HILDON_UI_MODE_NORMAL)
         self.skills_model = models.CharacterSkillsModel(self.controller, self.char_id)
@@ -131,10 +131,10 @@ class CharacterSheetUI(base.BaseUI):
                     break
                 
             self.add_label("%s <small>(Level %d)</small>" % (skill_name, skill.trainingToLevel),
-                    vbox, align="normal")
+                    vbox, align='normal')
             self.add_label("<small>start time: %s\t\tend time: %s</small>" 
                     %(time.ctime(skill.trainingStartTime),
-                time.ctime(skill.trainingEndTime)), vbox, align="normal")
+                time.ctime(skill.trainingEndTime)), vbox, align='normal')
 
             progressbar = gtk.ProgressBar()
             fraction_completed = (time.time() - skill.trainingStartTime) / \
@@ -148,7 +148,7 @@ class CharacterSheetUI(base.BaseUI):
             progressbar.show()
         else:
             self.add_label("<small>No skills are currently being trained</small>",
-                    vbox, align="normal")
+                    vbox, align='normal')
 
 
 
@@ -216,3 +216,14 @@ class CharacterSheetUI(base.BaseUI):
                                 util.comma(int(self.live_sp_val)))
 
         return True
+    
+    def add_label(self, text, box, markup=True, align='left'):
+        label = gtk.Label(text)
+        if markup:
+            label.set_use_markup(True)
+        if align == 'left':
+            label.set_alignment(0, 0.5)
+           
+        box.pack_start(label, False, False)
+
+        return label

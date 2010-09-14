@@ -18,22 +18,25 @@
 #
 
 
-import hildon
-import gtk
-from eveapi import eveapi
-import fetchimg
-import apicache
 import os.path
 import traceback
 import time
-
-#conic is used for connection handling
-import conic
+import sys
 #import socket for handling socket exceptions
 import socket
+import logging
+import logging.handlers
 
+import hildon
+import gtk
+#conic is used for connection handling
+import conic
 # we will store our preferences in gconf
 import gnome.gconf
+
+from eveapi import eveapi
+import fetchimg
+import apicache
 
 #ugly hack to check maemo version. any better way?
 if hasattr(hildon, "StackableWindow"):
@@ -41,11 +44,14 @@ if hasattr(hildon, "StackableWindow"):
 else:
     from ui.diablo import gui
 
-class mEveMon():
-    """
-    The controller class for mEvemon. The intent is to help
-    abstract the EVE API and settings code from the UI code.
+LOGNAME = "mevemon.log"
+CONFIG_DIR = os.path.expanduser("~/.mevemon/")
+LOGPATH = os.path.join(CONFIG_DIR, LOGNAME)
 
+
+class mEveMon():
+    """ The controller class for mEvemon. The intent is to help
+        abstract the EVE API and settings code from the UI code.
     """
 
     about_name = 'mEveMon'
@@ -78,9 +84,8 @@ class mEveMon():
         gtk.main_quit()
 
     def update_settings(self):
-        """
-        Update from the old pre 0.3 settings to the new settings layout.
-        We should remove this eventually, once no one is using pre-0.3 mEveMon
+        """ Update from the old pre 0.3 settings to the new settings layout.
+            We should remove this eventually, once no one is using pre-0.3 mEveMon
         """
         uid = self.gconf.get_string("%s/eve_uid" % self.GCONF_DIR)
         
@@ -92,8 +97,7 @@ class mEveMon():
 
 
     def get_accounts(self):
-        """
-        Returns a dictionary containing uid:api_key pairs gathered from gconf
+        """ Returns a dictionary containing uid:api_key pairs gathered from gconf
         """
         accounts = {}
         entries = self.gconf.all_entries("%s/accounts" % self.GCONF_DIR)
@@ -106,14 +110,12 @@ class mEveMon():
         return accounts
         
     def get_api_key(self, uid):
-        """
-        Returns the api key associated with the given uid.
+        """ Returns the api key associated with the given uid.
         """
         return self.gconf.get_string("%s/accounts/%s" % (self.GCONF_DIR, uid)) or ''
 
     def remove_account(self, uid):
-        """
-        Removes the provided uid key from gconf
+        """ Removes the provided uid key from gconf
         """
         self.gconf.unset("%s/accounts/%s" % (self.GCONF_DIR, uid))
 
@@ -124,9 +126,8 @@ class mEveMon():
         self.gconf.set_string("%s/accounts/%s" % (self.GCONF_DIR, uid), api_key)
 
     def get_auth(self, uid):
-        """
-        Returns an authentication object to be used for eveapi calls
-        that require authentication.
+        """ Returns an authentication object to be used for eveapi calls
+            that require authentication.
         """
         api_key = self.get_api_key(uid)
 
@@ -140,9 +141,8 @@ class mEveMon():
         return auth
 
     def get_char_sheet(self, uid, char_id):
-        """
-        Returns an object containing information about the character specified
-        by the provided character ID.
+        """ Returns an object containing information about the character specified
+            by the provided character ID.
         """
         try:
             sheet = self.get_auth(uid).character(char_id).CharacterSheet()
@@ -155,11 +155,10 @@ class mEveMon():
         return sheet
 
     def charid2uid(self, char_id):
-        """
-        Takes a character ID and returns the user ID of the account containing
-        the character.
+        """ Takes a character ID and returns the user ID of the account containing
+            the character.
 
-        Returns None if the character isn't found in any of the registered accounts.
+            Returns None if the character isn't found in any of the registered accounts.
 
         """
         acct_dict = self.get_accounts()
@@ -180,11 +179,10 @@ class mEveMon():
         return None
     
     def char_id2name(self, char_id):
-        """
-        Takes a character ID and returns the character name associated with
-        that ID.
-        The EVE API accepts a comma-separated list of IDs, but for now we
-        will just handle a single ID.
+        """ Takes a character ID and returns the character name associated with
+            that ID.
+            The EVE API accepts a comma-separated list of IDs, but for now we
+            will just handle a single ID.
         """
         try:
             chars = self.cached_api.eve.CharacterName(ids=char_id).characters
@@ -197,11 +195,10 @@ class mEveMon():
         return name
 
     def char_name2id(self, name):
-        """
-        Takes the name of an EVE character and returns the characterID.
+        """ Takes the name of an EVE character and returns the characterID.
         
-        The EVE api accepts a comma separated list of names, but for now
-        we will just handle single names/
+            The EVE api accepts a comma separated list of names, but for now
+            we will just handle single names/
         """
         try:
             chars = self.cached_api.eve.CharacterID(names=name).characters
@@ -215,8 +212,7 @@ class mEveMon():
         return char_id
 
     def get_chars_from_acct(self, uid):
-        """
-        Returns a list of characters associated with the provided user ID.
+        """ Returns a list of characters associated with the provided user ID.
         """
         auth = self.get_auth(uid)
         if not auth:
@@ -233,13 +229,11 @@ class mEveMon():
         return char_list
 
     def get_characters(self):
-        """
-        Returns a list of (character_name, image_path, uid) tuples from all the
-        accounts that are registered to mEveMon.
+        """ Returns a list of (character_name, image_path, uid) tuples from all the
+            accounts that are registered to mEveMon.
         
-        If there is an authentication issue, then instead of adding a valid
-        pair to the list, it appends an 'error message' 
-
+            If there is an authentication issue, then instead of adding a valid
+            pair to the list, it appends an 'error message' 
         """
 
         ui_char_list = []
@@ -266,16 +260,14 @@ class mEveMon():
         return ui_char_list
 
     def get_portrait(self, char_name, size):
-        """
-        Returns the file path of the retrieved portrait
+        """ Returns the file path of the retrieved portrait
         """
         char_id = self.char_name2id(char_name)
         
         return fetchimg.portrait_filename(char_id, size)
 
     def get_skill_tree(self):
-        """
-        Returns an object from eveapi containing skill tree info
+        """ Returns an object from eveapi containing skill tree info
         """
         try:
             tree = self.cached_api.eve.SkillTree()
@@ -287,9 +279,8 @@ class mEveMon():
         return tree
 
     def get_skill_in_training(self, uid, char_id):
-        """
-        Returns an object from eveapi containing information about the
-        current skill in training
+        """ Returns an object from eveapi containing information about the
+            current skill in training
         """
         try:
             skill = self.get_auth(uid).character(char_id).SkillInTraining()
@@ -301,19 +292,17 @@ class mEveMon():
         return skill
 
     def connection_cb(self, connection, event, mgc):
-        """
-        I'm not sure why we need this, but connection.connect() won't work
-        without it, even empty.
+        """ I'm not sure why we need this, but connection.connect() won't work
+            without it, even empty.
         """
         pass    
 
 
     def connect_to_network(self):
-        """
-        This will connect to the default network if avaliable, or pop up the
-        connection dialog to select a connection.
-        Running this when we start the program ensures we are connected to a
-        network.
+        """ This will connect to the default network if avaliable, or pop up the
+            connection dialog to select a connection.
+            Running this when we start the program ensures we are connected to a
+            network.
         """
         connection = conic.Connection()
         #why 0xAA55?
@@ -322,9 +311,8 @@ class mEveMon():
 
 
     def get_sp(self, uid, char_id):
-        """
-        Adds up the SP for all known skills, then calculates the SP gained
-        from an in-training skill.
+        """ Adds up the SP for all known skills, then calculates the SP gained
+            from an in-training skill.
         """
         actual_sp = 0
         
@@ -337,8 +325,7 @@ class mEveMon():
         return live_sp
 
     def get_spps(self, uid, char_id):
-        """
-        Calculate and returns the skill points per hour for the given character.
+        """ Calculate and returns the skill points per hour for the given character.
         """
         skill = self.get_skill_in_training(uid, char_id)
         
@@ -353,8 +340,7 @@ class mEveMon():
         return (spps, skill.trainingStartTime)
 
     def get_training_sp(self, uid, char_id):
-        """
-        returns the additional SP that the in-training skill has acquired
+        """ returns the additional SP that the in-training skill has acquired
         """
         spps_tuple = self.get_spps(uid, char_id)
         
@@ -367,6 +353,39 @@ class mEveMon():
         return (spps * time_diff) 
 
 
+def excepthook(ex_type, value, tb):
+    """ a replacement for the default exception handler that logs errors"""
+    #tb2 = "".join(traceback.format_exception(ex_type, value, tb))
+    #print tb2
+    logging.getLogger('meEveMon').error('Uncaught exception:', 
+                      exc_info=(ex_type, value, tb))
+
+def setupLogger():
+    """ sets up the logging """
+    MAXBYTES = 1 * 1000 * 1000 # 1MB
+    LOGCOUNT = 10
+
+    logger = logging.getLogger("mEveMon")
+    logger.setLevel(logging.DEBUG)
+    
+    fileHandler = logging.handlers.RotatingFileHandler(LOGPATH,
+                                                    maxBytes=MAXBYTES,
+                                                    backupCount=LOGCOUNT)
+    logger.addHandler(fileHandler)
+
+    #create console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG)
+    #formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    #console.setFormatter(formatter)
+    logger.addHandler(console)
+
+
 if __name__ == "__main__":
+    setupLogger()
+    sys.excepthook = excepthook
     app = mEveMon()
-    app.run()
+    try:
+        app.run()
+    except KeyboardInterrupt:
+        sys.exit(0)
