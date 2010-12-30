@@ -42,10 +42,10 @@ class cache_handler( object ):
                 f.close()
 
         if cached:
-            # check if the cached doc is fresh enough
+            # check if the cached object is fresh enough
             if time.time() < cached[0]:
                 self.log( "%s: returning cached document." % path )
-                # return the cached XML doc
+                # return the cached object
                 return cached[1]
 
                 # if it's stale, purge it --danny
@@ -69,7 +69,7 @@ class cache_handler( object ):
             cachedUntil = time.time() + cachedFor
 
             # store in memory
-            cached = self.cache[key] = ( cachedUntil, doc )
+            cached = self.cache[key] = ( cachedUntil, obj )
             
             # store in cache folder
             cacheFile = join( self.tempdir, str( key ) + ".cache" )
