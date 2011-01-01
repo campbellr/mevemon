@@ -187,8 +187,8 @@ class BaseUI():
                 api_key = apiEntry.get_text()
             
                 try:
-                    validation.uid(uid)
-                    validation.api_key(api_key)
+                    validation.validate_uid(uid)
+                    validation.validate_api_key(api_key)
                 except validation.ValidationError, e:
                     self.report_error(e.message)
                     result = dialog.run()

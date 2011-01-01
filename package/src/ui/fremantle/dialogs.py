@@ -82,8 +82,8 @@ class NewAccountDialog(gtk.Dialog):
                 uid = self.uidEntry.get_text()
                 api_key = self.apiEntry.get_text()
                 try:
-                    validation.uid(uid)
-                    validation.api_key(api_key)
+                    validation.validate_uid(uid)
+                    validation.validate_api_key(api_key)
                 except validation.ValidationError, e:
                     self.report_error(e.message)
                     result = self.run()

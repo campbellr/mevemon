@@ -22,7 +22,6 @@ import gobject
 
 from ui.fremantle.characterSheet import CharacterSheetUI
 import ui.models as models
-import validation
 from ui.fremantle.menu import Menu
 
 class mEveMonUI:

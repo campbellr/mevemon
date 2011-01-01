@@ -19,11 +19,8 @@
 
 
 import os.path
-import traceback
 import time
 import sys
-#import socket for handling socket exceptions
-import socket
 import logging
 import logging.handlers
 
@@ -60,7 +57,7 @@ class mEveMon():
                      'Danny Campbell <danny.campbell@gmail.com>']
 
     about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.4-8'
+    app_version = '0.5-1'
 
 
     GCONF_DIR = "/apps/maemo/mevemon"
@@ -69,8 +66,6 @@ class mEveMon():
         self.program = hildon.Program()
         self.program.__init__()
         self.gconf = gnome.gconf.client_get_default()
-        #NOTE: remove this after a few releases
-        self.update_settings()
         self.connect_to_network()
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
                 apicache.cache_handler(debug=False))
@@ -82,18 +77,6 @@ class mEveMon():
     
     def quit(self, *args):
         gtk.main_quit()
-
-    def update_settings(self):
-        """ Update from the old pre 0.3 settings to the new settings layout.
-            We should remove this eventually, once no one is using pre-0.3 mEveMon
-        """
-        uid = self.gconf.get_string("%s/eve_uid" % self.GCONF_DIR)
-        
-        if uid:
-            key = self.gconf.get_string("%s/eve_api_key" % self.GCONF_DIR)
-            self.add_account(uid, key)
-            self.gconf.unset("%s/eve_uid" % self.GCONF_DIR)
-            self.gconf.unset("%s/eve_api_key" % self.GCONF_DIR)
 
 
     def get_accounts(self):
@@ -135,7 +118,7 @@ class mEveMon():
             auth = self.cached_api.auth(userID=uid, apiKey=api_key)
         except Exception, e:
             self.gui.report_error(str(e))
-            traceback.print_exc()
+            logging.getLogger('meEveMon').exception("Failed to get character name")
             return None
 
         return auth
@@ -148,8 +131,7 @@ class mEveMon():
             sheet = self.get_auth(uid).character(char_id).CharacterSheet()
         except Exception, e:
             self.gui.report_error(str(e))
-            # TODO: we should really have a logger that logs this error somewhere
-            traceback.print_exc()
+            logging.getLogger('meEveMon').exception("Failed to get character name")
             return None
 
         return sheet
@@ -175,8 +157,6 @@ class mEveMon():
                 if character.characterID == char_id:
                     return uid
 
-        
-        return None
     
     def char_id2name(self, char_id):
         """ Takes a character ID and returns the character name associated with
@@ -189,7 +169,7 @@ class mEveMon():
             name = chars[0].characterName
         except Exception, e:
             self.gui.report_error(str(e))
-            traceback.print_exc()
+            logging.getLogger('meEveMon').exception("Failed to get character name")
             return None
 
         return name
@@ -206,7 +186,7 @@ class mEveMon():
             char_name = chars[0].name
         except Exception, e:
             self.gui.report_error(str(e))
-            traceback.print_exc()
+            logging.getLogger('meEveMon').exception("Failed to get ID")
             return None
 
         return char_id
@@ -223,7 +203,7 @@ class mEveMon():
                 char_list = [char.name for char in api_char_list.characters]
             except Exception, e:
                 self.gui.report_error(str(e))
-                traceback.print_exc()
+                logging.getLogger('meEveMon').exception("Failed to get character list")
                 return None
 
         return char_list
@@ -273,7 +253,7 @@ class mEveMon():
             tree = self.cached_api.eve.SkillTree()
         except Exception, e:
             self.gui.report_error(str(e))
-            traceback.print_exc()
+            logging.getLogger('meEveMon').exception("Failed to get skill-in-training:")
             return None
         
         return tree
@@ -286,7 +266,7 @@ class mEveMon():
             skill = self.get_auth(uid).character(char_id).SkillInTraining()
         except Exception, e:
             self.gui.report_error(str(e))
-            traceback.print_exc()
+            logging.getLogger('meEveMon').exception("Failed to get skill-in-training:")
             return None
 
         return skill
@@ -355,8 +335,6 @@ class mEveMon():
 
 def excepthook(ex_type, value, tb):
     """ a replacement for the default exception handler that logs errors"""
-    #tb2 = "".join(traceback.format_exception(ex_type, value, tb))
-    #print tb2
     logging.getLogger('meEveMon').error('Uncaught exception:', 
                       exc_info=(ex_type, value, tb))
 
@@ -376,8 +354,6 @@ def setupLogger():
     #create console handler
     console = logging.StreamHandler()
     console.setLevel(logging.DEBUG)
-    #formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-    #console.setFormatter(formatter)
     logger.addHandler(console)
 
 
