@@ -124,7 +124,7 @@ class BaseUI():
 
     def delete_account(self, treeview):
         uid = self.get_selected_item(treeview, 0)
-        self.controller.remove_account(uid)
+        self.controller.settings.remove_account(uid)
         # refresh model
         self.accounts_model.get_accounts()
 
@@ -192,7 +192,7 @@ class BaseUI():
                     result = dialog.run()
                 else:
                     valid_credentials = True
-                    self.controller.add_account(uid, api_key)
+                    self.controller.settings.add_account(uid, api_key)
                     self.accounts_model.get_accounts()
             else:
                 break

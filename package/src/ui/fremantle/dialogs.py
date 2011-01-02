@@ -54,7 +54,7 @@ class SettingsDialog(gtk.Dialog):
     
     def on_delete_account_clicked(self):
         uid = self._get_selected_item(0)
-        self.controller.remove_account(uid)
+        self.controller.settings.remove_account(uid)
         self.accounts.refresh()
     
     def _get_selected_item(self, column):
@@ -89,7 +89,7 @@ class NewAccountDialog(gtk.Dialog):
                     result = self.run()
                 else:
                     valid_credentials = True
-                    self.controller.add_account(uid, api_key)
+                    self.controller.settings.add_account(uid, api_key)
             else:
                 break
 

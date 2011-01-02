@@ -12,7 +12,7 @@ class AccountsModel(gtk.ListStore):
     def get_accounts(self):
         self.clear()
 
-        accts_dict = self.controller.get_accounts()
+        accts_dict = self.controller.settings.get_accounts()
 
         if not accts_dict:
             return None

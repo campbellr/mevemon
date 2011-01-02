@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 import os.path
 import time
 import sys
@@ -28,12 +27,11 @@ import hildon
 import gtk
 #conic is used for connection handling
 import conic
-# we will store our preferences in gconf
-import gnome.gconf
 
 from eveapi import eveapi
 import fetchimg
 import apicache
+import settings
 
 #ugly hack to check maemo version. any better way?
 if hasattr(hildon, "StackableWindow"):
@@ -45,8 +43,7 @@ LOGNAME = "mevemon.log"
 CONFIG_DIR = os.path.expanduser("~/.mevemon/")
 LOGPATH = os.path.join(CONFIG_DIR, LOGNAME)
 
-
-class mEveMon():
+class mEveMon:
     """ The controller class for mEvemon. The intent is to help
         abstract the EVE API and settings code from the UI code.
     """
@@ -59,14 +56,10 @@ class mEveMon():
     about_website = 'http://mevemon.garage.maemo.org'
     app_version = '0.5-1'
 
-
-    GCONF_DIR = "/apps/maemo/mevemon"
-
     def __init__(self):
         self.program = hildon.Program()
-        self.program.__init__()
-        self.gconf = gnome.gconf.client_get_default()
         self.connect_to_network()
+        self.settings = settings.Settings()
         self.cached_api = eveapi.EVEAPIConnection( cacheHandler = \
                 apicache.cache_handler(debug=False))
         self.gui = gui.mEveMonUI(self)
@@ -78,47 +71,17 @@ class mEveMon():
     def quit(self, *args):
         gtk.main_quit()
 
-
-    def get_accounts(self):
-        """ Returns a dictionary containing uid:api_key pairs gathered from gconf
-        """
-        accounts = {}
-        entries = self.gconf.all_entries("%s/accounts" % self.GCONF_DIR)
-
-        for entry in entries:
-            key = os.path.basename(entry.get_key())
-            value = entry.get_value().to_string()
-            accounts[key] = value
-
-        return accounts
-        
-    def get_api_key(self, uid):
-        """ Returns the api key associated with the given uid.
-        """
-        return self.gconf.get_string("%s/accounts/%s" % (self.GCONF_DIR, uid)) or ''
-
-    def remove_account(self, uid):
-        """ Removes the provided uid key from gconf
-        """
-        self.gconf.unset("%s/accounts/%s" % (self.GCONF_DIR, uid))
-
-    def add_account(self, uid, api_key):
-        """
-        Adds the provided uid:api_key pair to gconf.
-        """
-        self.gconf.set_string("%s/accounts/%s" % (self.GCONF_DIR, uid), api_key)
-
     def get_auth(self, uid):
         """ Returns an authentication object to be used for eveapi calls
             that require authentication.
         """
-        api_key = self.get_api_key(uid)
+        api_key = self.settings.get_api_key(uid)
 
         try:
             auth = self.cached_api.auth(userID=uid, apiKey=api_key)
         except Exception, e:
             self.gui.report_error(str(e))
-            logging.getLogger('meEveMon').exception("Failed to get character name")
+            logging.getLogger('mevemon').exception("Failed to get character name")
             return None
 
         return auth
@@ -131,7 +94,7 @@ class mEveMon():
             sheet = self.get_auth(uid).character(char_id).CharacterSheet()
         except Exception, e:
             self.gui.report_error(str(e))
-            logging.getLogger('meEveMon').exception("Failed to get character name")
+            logging.getLogger('mevemon').exception("Failed to get character name")
             return None
 
         return sheet
@@ -143,7 +106,7 @@ class mEveMon():
             Returns None if the character isn't found in any of the registered accounts.
 
         """
-        acct_dict = self.get_accounts()
+        acct_dict = self.settings.get_accounts()
         
         for uid, api_key in acct_dict.items():
             auth = self.cached_api.auth(userID=uid, apiKey=api_key)
@@ -169,7 +132,7 @@ class mEveMon():
             name = chars[0].characterName
         except Exception, e:
             self.gui.report_error(str(e))
-            logging.getLogger('meEveMon').exception("Failed to get character name")
+            logging.getLogger('mevemon').exception("Failed to get character name")
             return None
 
         return name
@@ -186,7 +149,7 @@ class mEveMon():
             char_name = chars[0].name
         except Exception, e:
             self.gui.report_error(str(e))
-            logging.getLogger('meEveMon').exception("Failed to get ID")
+            logging.getLogger('mevemon').exception("Failed to get ID")
             return None
 
         return char_id
@@ -203,7 +166,7 @@ class mEveMon():
                 char_list = [char.name for char in api_char_list.characters]
             except Exception, e:
                 self.gui.report_error(str(e))
-                logging.getLogger('meEveMon').exception("Failed to get character list")
+                logging.getLogger('mevemon').exception("Failed to get character list")
                 return None
 
         return char_list
@@ -222,7 +185,7 @@ class mEveMon():
 
         placeholder_chars = (err_txt, err_img, None)
         
-        acct_dict = self.get_accounts()
+        acct_dict = self.settings.get_accounts()
         if not acct_dict:
             return [placeholder_chars]
 
@@ -253,7 +216,7 @@ class mEveMon():
             tree = self.cached_api.eve.SkillTree()
         except Exception, e:
             self.gui.report_error(str(e))
-            logging.getLogger('meEveMon').exception("Failed to get skill-in-training:")
+            logging.getLogger('mevemon').exception("Failed to get skill-in-training:")
             return None
         
         return tree
@@ -266,7 +229,7 @@ class mEveMon():
             skill = self.get_auth(uid).character(char_id).SkillInTraining()
         except Exception, e:
             self.gui.report_error(str(e))
-            logging.getLogger('meEveMon').exception("Failed to get skill-in-training:")
+            logging.getLogger('mevemon').exception("Failed to get skill-in-training:")
             return None
 
         return skill
@@ -335,7 +298,7 @@ class mEveMon():
 
 def excepthook(ex_type, value, tb):
     """ a replacement for the default exception handler that logs errors"""
-    logging.getLogger('meEveMon').error('Uncaught exception:', 
+    logging.getLogger("mevemon").error('Uncaught exception:', 
                       exc_info=(ex_type, value, tb))
 
 def setupLogger():
@@ -343,18 +306,23 @@ def setupLogger():
     MAXBYTES = 1 * 1000 * 1000 # 1MB
     LOGCOUNT = 10
 
-    logger = logging.getLogger("mEveMon")
+    logger = logging.getLogger("mevemon")
     logger.setLevel(logging.DEBUG)
     
     fileHandler = logging.handlers.RotatingFileHandler(LOGPATH,
                                                     maxBytes=MAXBYTES,
                                                     backupCount=LOGCOUNT)
+    file_fmt = logging.Formatter('%(asctime)s %(name)-10s %(levelname)-5s %(message)s')
+    console_fmt = logging.Formatter('%(name)-10s %(levelname)-5s %(message)s')
+    fileHandler.setFormatter(file_fmt)
     logger.addHandler(fileHandler)
 
     #create console handler
     console = logging.StreamHandler()
     console.setLevel(logging.DEBUG)
+    console.setFormatter(console_fmt)
     logger.addHandler(console)
+    logger.debug("Logging successfully set-up.")
 
 
 if __name__ == "__main__":
