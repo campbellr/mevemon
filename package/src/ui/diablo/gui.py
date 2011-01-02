@@ -60,8 +60,6 @@ class BaseUI():
         dialog.set_transient_for(window)
         dialog.set_title("Settings")
 
-
-
         vbox = dialog.vbox
 
         acctsLabel = gtk.Label("Accounts:")
@@ -238,8 +236,8 @@ class mEveMonUI(BaseUI):
         self.win = hildon.Window()
         self.win.connect("destroy", self.controller.quit)
         self.win.show_all()
-        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading overview...")
-        progress_bar.set_fraction(0.4)
+
+        # wait notification start --danny
 
         # Create menu
         menu = self.create_menu(self.win)
@@ -260,8 +258,7 @@ class mEveMonUI(BaseUI):
         self.win.add_with_scrollbar(treeview)
         self.win.show_all()
 
-        progress_bar.set_fraction(1)
-        progress_bar.destroy()
+        # wait notification end --danny
 
     def add_columns_to_treeview(self, treeview):
         #Column 0 for the treeview
@@ -280,11 +277,8 @@ class mEveMonUI(BaseUI):
         treeview.append_column(column)
  
     def refresh_clicked(self, button):
-        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading characters...")
-        progress_bar.set_fraction(1)
         self.char_model.get_characters()
-        progress_bar.destroy()
-
+        # wait notification end --danny
 
     def do_charactersheet(self, treeview, path, view_column):
 
@@ -314,16 +308,14 @@ class CharacterSheetUI(BaseUI):
 
         self.build_window()
 
-
     def build_window(self):
         # TODO: this is a really long and ugly function, split it up somehow
 
         self.win = hildon.Window()
 
-        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading character sheet...")
-
         self.win.show_all() 
-        progress_bar.set_fraction(0.4)
+
+        # wait notification start --danny
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
@@ -381,8 +373,7 @@ class CharacterSheetUI(BaseUI):
         self.win.add_with_scrollbar(vbox)
         self.win.show_all()
 
-        progress_bar.set_fraction(1)
-        progress_bar.destroy()
+        # wait notification end --danny
         
         # diablo doesnt have a glib module, but gobject module seems to have
         # the same functions...
@@ -482,11 +473,8 @@ class CharacterSheetUI(BaseUI):
 
 
     def refresh_clicked(self, button):
-        progress_bar = hildon.hildon_banner_show_progress(self.win, None, "Loading overview...")
-        progress_bar.set_fraction(1)
         self.skills_model.get_skills()
-        progress_bar.destroy()
-
+        # wait notification end --danny
 
     def update_live_sp(self):
         self.live_sp_val = self.live_sp_val + self.spps * (self.UPDATE_INTERVAL / 1000)
