@@ -3,6 +3,7 @@ import gtk
 
 import ui.models as models
 import ui.fremantle.dialogs as dialogs
+import constants
 
 class Menu(hildon.AppMenu):
     MENU_ITEMS = { "Settings": 'on_settings_clicked', 
@@ -34,12 +35,12 @@ class Menu(hildon.AppMenu):
     
     def on_about_clicked(self, button):
         dialog = gtk.AboutDialog()
-        dialog.set_website(self.controller.about_website)
-        dialog.set_website_label(self.controller.about_website)
-        dialog.set_name(self.controller.about_name)
-        dialog.set_authors(self.controller.about_authors)
-        dialog.set_comments(self.controller.about_text)
-        dialog.set_version(self.controller.app_version)
+        dialog.set_website(constants.ABOUT_WEBSITE)
+        dialog.set_website_label(constants.ABOUT_WEBSITE)
+        dialog.set_name(constants.ABOUT_NAME)
+        dialog.set_authors(constants.ABOUT_AUTHORS)
+        dialog.set_comments(constants.ABOUT_TEXT)
+        dialog.set_version(constants.APP_VERSION)
         dialog.run()
         dialog.destroy()
 

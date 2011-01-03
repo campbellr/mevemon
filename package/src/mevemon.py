@@ -31,7 +31,8 @@ import conic
 from eveapi import eveapi
 import fetchimg
 import apicache
-import settings
+import file_settings as settings
+from constants import LOGPATH, MAXBYTES, LOGCOUNT
 
 #ugly hack to check maemo version. any better way?
 if hasattr(hildon, "StackableWindow"):
@@ -39,23 +40,10 @@ if hasattr(hildon, "StackableWindow"):
 else:
     from ui.diablo import gui
 
-LOGNAME = "mevemon.log"
-CONFIG_DIR = os.path.expanduser("~/.mevemon/")
-LOGPATH = os.path.join(CONFIG_DIR, LOGNAME)
-
 class mEveMon:
     """ The controller class for mEvemon. The intent is to help
         abstract the EVE API and settings code from the UI code.
     """
-
-    about_name = 'mEveMon'
-    about_text = ('Mobile character monitor for EVE Online')
-    about_authors = ['Ryan Campbell <campbellr@gmail.com>',
-                     'Danny Campbell <danny.campbell@gmail.com>']
-
-    about_website = 'http://mevemon.garage.maemo.org'
-    app_version = '0.5-1'
-
     def __init__(self):
         self.program = hildon.Program()
         self.connect_to_network()
@@ -303,8 +291,6 @@ def excepthook(ex_type, value, tb):
 
 def setupLogger():
     """ sets up the logging """
-    MAXBYTES = 1 * 1000 * 1000 # 1MB
-    LOGCOUNT = 10
 
     logger = logging.getLogger("mevemon")
     logger.setLevel(logging.DEBUG)

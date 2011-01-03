@@ -1,12 +1,16 @@
+""" wrapper for gconf-based settings """
 import os
 
-import gnome.gconf
+try:
+    import gnome.gconf as gconf
+except ImportError:
+    import gconf
 
 GCONF_DIR = "/apps/maemo/mevemon"
 
 class Settings:
     def __init__(self):
-        self.gconf = gnome.gconf.client_get_default()
+        self.gconf = gconf.client_get_default()
 
     def get_accounts(self):
         """ Returns a dictionary containing uid:api_key pairs gathered from gconf

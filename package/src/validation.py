@@ -1,6 +1,5 @@
 """ This module contains all our input validation functions """
-
-KEY_SIZE = 64
+from constants import KEY_SIZE
 
 class ValidationError(StandardError):
     """ Exception that is raised if input validation fails
