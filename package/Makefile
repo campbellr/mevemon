@@ -55,3 +55,6 @@ package:
 	sed -i 's:mevemon (.*):mevemon (${MAJOR_VER}.${MINOR_VER}-${PKG_VER}):g' debian/changelog	
 	dpkg-buildpackage -rfakeroot -uc -us
 
+test:
+	python -m discover -s src/tests/ -t src/
+

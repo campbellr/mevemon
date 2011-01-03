@@ -3,3 +3,6 @@ HOW TO RUN UNIT TESTS:
 From 'mevemon/package/src/' run the following command:
 
 $ python -m discover -s tests/
+
+Alternatively, you can just run 'make test' from the 'package' directory.
+
