@@ -1,0 +1,62 @@
+/*
+Site design "borrowed" (with permission from) tim@samoff.com
+http://samoff.com
+*/
+
+html, body{background:#101010; font-family:Verdana,Arial,Helvetica,sans-serif; font-size:12px; margin:0; padding:0; text-align:left;}
+
+#tabs{text-align:center; font-size:12px;}
+#content{font-size:12px;}
+#footer{text-align:center;}
+
+/*
+#diablo_images{text-align:right;}
+#fremantle_images{text-align:right;}
+*/
+
+/* Full-screen background image */
+
+img.bg{min-height:100%; min-width:1024px; width:100%; height:auto; position:fixed; top:0; left:0}
+@media screen and (max-width:1024px){img.bg{left:50%; margin-left:-512px}
+}
+
+/* Construct */
+#header{position:relative; background:transparent; margin:30px auto 0 auto; padding:0}
+#content{text-align:left; position:relative; background:#fff; width:70%; margin:10px auto; padding:15px 20px; font-family:verdana,helvetica,arial,sans-serif; -moz-box-shadow:#000 0px 0px 50px; -webkit-box-shadow:#000 0px 0px 50px; opacity:.75; -moz-opacity:.75; filter:alpha(opacity=75)}
+#devmenu{background:#feeccd; padding:15px}
+#footer{position:relative; background:transparent; width:600px; margin:0 auto; padding:0}
+
+/* Elements */
+a, a:visited{color:#B57C00; text-decoration:none}
+a:hover, a:active{text-decoration:underline}
+h1, h2, h3{color:#777; margin:15px 0 10px 0}
+h1{margin:15px auto; background-image:url(ui/logo.png); width:379px; height:90px; text-indent:-9999em}
+h1 a, h1 a:hover, h1 a:active, h1 a:visited{padding-right:-9999em; display:block; width:205px; height:90px}
+h2{font-size:1.4em}
+h3{font-size:1.1em}
+p{color:#000; line-height:1.2em; padding:0; margin-bottom:10px}
+ul li{color:#000; margin:0 20px; line-height:1.4em; list-style-type:square; list-style-position:outside}
+.logo{display:block; margin:0 auto 20px auto}
+.download{float:right}
+.note{color:#900}
+.aside{color:#B57C00; font-size: 14px; margin-top: 15px; border-top: 1px solid #B57C00; clear: right; padding-top: 4px}
+.strike{text-decoration:line-through}
+#footer p{color:#ccc; font-size:.8em}
+
+/* jQuery UI Tabs & In-Site Navigation */
+.ui-tabs .ui-tabs-panel { padding: 0; display: block; border-width: 0; background: none; }
+.ui-tabs .ui-tabs-hide { display: none !important; }
+.ui-tabs {position:relative; margin:0 auto; padding:0; zoom: 1;}
+.ui-tabs .ui-tabs-nav {background:transparent; list-style-type:none; height:32px; width:100%}
+.ui-tabs .ui-tabs-nav li {display:inline; margin:0; padding:0; height:31px; line-height:31px; border-right:1px solid #ccc; border-left:none; margin-bottom:-1px}
+.ui-tabs .ui-tabs-nav li.last {border:none;}
+.ui-tabs .ui-tabs-nav li a {}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a {cursor:text;}
+.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {text-decoration:none; display:block; display:inline-block; font-size:1.2em; margin:0; padding:0 10px; outline:none; cursor: pointer;}
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited {color:#ccc;}
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus {color:#B57C00;}
+.ui-state-hover a, .ui-state-hover a:hover { color: #FFAF00; text-decoration: none; outline: none; }
+.ui-state-active, .ui-widget-content .ui-state-active {color:#B57C00;}
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {color:#B57C00;}
+
