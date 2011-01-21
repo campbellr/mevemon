@@ -23,7 +23,7 @@ def portrait_filename( char_id, img_size ):
         return filename
 
     # specify size and cid --danny
-    img_url = "http://img.eve.is/serv.asp?s=%s&c=%s" % ( str( img_size ), char_id )
+    img_url = "http://image.eveonline.com/Character/%s_%s.jpg" % ( str( char_id ), img_size )
 
     # fetch it, and hit the road. --danny
     try:
