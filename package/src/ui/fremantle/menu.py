@@ -13,7 +13,11 @@ class Menu(hildon.AppMenu):
         hildon.AppMenu.__init__(self)
         self.win = win
         self.controller = controller
+        self.callback = lambda *args: None
         self.build_buttons()
+
+    def set_refresh_cb(self, callback):
+        self.callback = callback
 
     def build_buttons(self):
         for button_name in self.MENU_ITEMS:
@@ -27,7 +31,7 @@ class Menu(hildon.AppMenu):
         self.append(button)
 
     def on_refresh_clicked(self, button):
-        pass
+        self.callback(button)
 
     def on_settings_clicked(self, button):
         setting_dialog = dialogs.SettingsDialog(self.win, self.controller)

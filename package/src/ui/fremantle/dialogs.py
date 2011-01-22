@@ -20,6 +20,11 @@ class SettingsDialog(gtk.Dialog):
 
         self.accounts = AccountsTreeView(gtk.HILDON_UI_MODE_NORMAL, self.controller)
         vbox.pack_start(self.accounts, False, False, 1)
+
+        clear_button = hildon.GtkButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_HALFSCREEN_WIDTH)
+        clear_button.set_label("Clear Cache")
+        clear_button.connect("clicked", self.on_clear_cache_clicked)
+        vbox.pack_start(clear_button, False, False, 1)
         
         # add butttons
         # all stock responses are negative, so we can use any positive value
@@ -46,6 +51,9 @@ class SettingsDialog(gtk.Dialog):
             result = self.run()
 
         self.destroy()
+
+    def on_clear_cache_clicked(self, button):
+        self.controller.clear_cache()
 
     def on_new_account_clicked(self):
         NewAccountDialog(self.win, self.controller)

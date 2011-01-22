@@ -17,11 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os.path
+import os
 import time
 import sys
 import logging
 import logging.handlers
+import shutil
 
 import hildon
 import gtk
@@ -32,7 +33,8 @@ from eveapi import eveapi
 import fetchimg
 import apicache
 import file_settings as settings
-from constants import LOGPATH, MAXBYTES, LOGCOUNT
+from constants import LOGPATH, MAXBYTES, LOGCOUNT, CONFIG_DIR, IMG_CACHE_PATH
+from constants import APICACHE_PATH
 
 #ugly hack to check maemo version. any better way?
 if hasattr(hildon, "StackableWindow"):
@@ -169,7 +171,7 @@ class mEveMon:
 
         ui_char_list = []
         err_img = "/usr/share/mevemon/imgs/error.jpg"
-        err_txt = "Problem fetching info for account"
+        err_txt = "Problem fetching info for account (or no accounts added)"
 
         placeholder_chars = (err_txt, err_img, None)
         
@@ -283,6 +285,13 @@ class mEveMon:
 
         return (spps * time_diff) 
 
+    def clear_cache(self):
+        """ Clears all cached data (images and eveapi cache) """
+        try:
+            shutil.rmtree(IMG_CACHE_PATH)
+            shutil.rmtree(APICACHE_PATH)
+        except OSError, e:
+            logging.getLogger('mevemon').exception("Failed to clear cache")
 
 def excepthook(ex_type, value, tb):
     """ a replacement for the default exception handler that logs errors"""
@@ -291,6 +300,8 @@ def excepthook(ex_type, value, tb):
 
 def setupLogger():
     """ sets up the logging """
+    if not os.path.exists(CONFIG_DIR):
+        os.makedirs(CONFIG_DIR)
 
     logger = logging.getLogger("mevemon")
     logger.setLevel(logging.DEBUG)

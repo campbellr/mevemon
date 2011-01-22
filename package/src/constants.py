@@ -1,9 +1,12 @@
 """ Contains all the constants that mevemon uses """
 import os
+import tempfile
 
 CONFIG_DIR = os.path.expanduser("~/.mevemon/")
 CONFIG_NAME = "mevemon.cfg"
 CONFIG_PATH = os.path.join(CONFIG_DIR, CONFIG_NAME)
+IMG_CACHE_PATH = os.path.join(CONFIG_DIR, "imgs")
+APICACHE_PATH = os.path.join(tempfile.gettempdir(), "eveapi")
 
 # Logging constants
 LOGNAME = "mevemon.log"

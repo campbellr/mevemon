@@ -38,6 +38,7 @@ class mEveMonUI:
 
         # Create menu
         menu = Menu(self.win, self.controller)
+        menu.set_refresh_cb(self.refresh_clicked)
         # Attach menu to the window
         self.win.set_app_menu(menu)
 
@@ -71,6 +72,9 @@ class mEveMonUI:
             CharacterSheetUI(self.controller, char_name, uid)
         else:
             pass
+    
+    def report_error(self, error):
+        hildon.hildon_banner_show_information(self.win.get_toplevel(), '', error)
 
 
 class CharactersTreeView(hildon.GtkTreeView):
@@ -98,5 +102,6 @@ class CharactersTreeView(hildon.GtkTreeView):
         column.set_property("expand", True)
         self.append_column(column)
 
-    def refresh():
+    def refresh(self):
         self.char_model.get_characters()
+    

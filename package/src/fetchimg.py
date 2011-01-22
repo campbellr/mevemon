@@ -1,11 +1,13 @@
 import urllib
 import os.path
 
+from constants import CONFIG_DIR
+
 def portrait_filename( char_id, img_size ):
 
     err_img = "/usr/share/mevemon/imgs/error.jpg"
    
-    img_dir = os.path.expanduser("~/.mevemon/imgs/")
+    img_dir = os.path.join(CONFIG_DIR, "imgs/")
 
 
     # if asked for the large version, save it under a diff name --danny
