@@ -73,6 +73,11 @@ class BaseUI():
         accounts_treeview = gtk.TreeView(model = self.accounts_model)
         self.add_columns_to_accounts(accounts_treeview)
         vbox.pack_start(accounts_treeview, False, False, 1)
+        
+        clear_button = hildon.GtkButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_HALFSCREEN_WIDTH)
+        clear_button.set_label("Clear Cache")
+        clear_button.connect("clicked", self.on_clear_cache_clicked)
+        vbox.pack_start(clear_button, False, False, 1)
 
         # all stock responses are negative, so we can use any positive value
         new_button = dialog.add_button("New", RESPONSE_NEW)
