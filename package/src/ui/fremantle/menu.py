@@ -35,6 +35,7 @@ class Menu(hildon.AppMenu):
 
     def on_settings_clicked(self, button):
         setting_dialog = dialogs.SettingsDialog(self.win, self.controller)
+        self.callback(button)
 
     
     def on_about_clicked(self, button):
