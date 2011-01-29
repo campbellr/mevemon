@@ -74,8 +74,7 @@ class BaseUI():
         self.add_columns_to_accounts(accounts_treeview)
         vbox.pack_start(accounts_treeview, False, False, 1)
         
-        clear_button = hildon.GtkButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_HALFSCREEN_WIDTH)
-        clear_button.set_label("Clear Cache")
+        clear_button = gtk.Button("Clear Cache")
         clear_button.connect("clicked", self.on_clear_cache_clicked)
         vbox.pack_start(clear_button, False, False, 1)
 
@@ -112,6 +111,8 @@ class BaseUI():
 
         dialog.destroy()
 
+    def on_clear_cache_clicked(self, button):
+        self.controller.clear_cache()
 
 
     def get_selected_item(self, treeview, column):
