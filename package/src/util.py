@@ -1,5 +1,7 @@
 """Random helpful functions for mevemon """
- 
+import os
+import shutil
+
 def comma(number):
     """Converts a number in the format 1234567 to 1,234,567
     """
@@ -19,3 +21,13 @@ def comma(number):
     else:
         return ','.join(thousands) + '.' + fractional_part
 
+def clean_dir(path):
+    """ Removes the contents of a directory, but not the directory itself
+    """
+    names = os.listdir(path)
+    for name in names:
+        fullname = os.path.join(path, name)
+        if os.path.isdir(fullname):
+            shutil.rmtree(fullname)
+        else:
+            os.remove(fullname)

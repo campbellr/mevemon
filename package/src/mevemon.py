@@ -22,7 +22,7 @@ import time
 import sys
 import logging
 import logging.handlers
-import shutil
+import util
 
 import hildon
 import gtk
@@ -288,8 +288,8 @@ class mEveMon:
     def clear_cache(self):
         """ Clears all cached data (images and eveapi cache) """
         try:
-            shutil.rmtree(IMG_CACHE_PATH)
-            shutil.rmtree(APICACHE_PATH)
+            util.clean_dir(IMG_CACHE_PATH)
+            util.clean_dir(APICACHE_PATH)
         except OSError, e:
             logging.getLogger('mevemon').exception("Failed to clear cache")
 
