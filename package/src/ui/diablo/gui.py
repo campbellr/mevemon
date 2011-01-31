@@ -151,7 +151,7 @@ class BaseUI():
         treeview.append_column(column)
 
 
-    def new_account_clicked(self, window):
+    def new_account_clicked(self, window, widget):
         dialog = gtk.Dialog()
     
         #get the vbox to pack all the settings into
@@ -244,14 +244,17 @@ class mEveMonUI(BaseUI):
         self.win.connect("destroy", self.controller.quit)
         self.win.show_all()
 
-        # wait notification start --danny
+        wait_anim = hildon.hildon_banner_show_animation(self.win, None, "Loading overview...")        
+        # it would seem that on diablo we have to wait for gtk to
+        # get its ass in gear...
+        while gtk.events_pending():
+            gtk.main_iteration()
 
         # Create menu
         menu = self.create_menu(self.win)
 
         # Attach menu to the window
         self.win.set_menu(menu)
-
 
         # create the treeview --danny
         self.char_model = models.CharacterListModel(self.controller)
@@ -265,7 +268,7 @@ class mEveMonUI(BaseUI):
         self.win.add_with_scrollbar(treeview)
         self.win.show_all()
 
-        # wait notification end --danny
+        wait_anim.destroy()
 
     def add_columns_to_treeview(self, treeview):
         #Column 0 for the treeview
@@ -283,9 +286,13 @@ class mEveMonUI(BaseUI):
         column.set_property("expand", True)
         treeview.append_column(column)
  
-    def refresh_clicked(self, button):
+    def refresh_clicked(self, button, window):
+        wait_anim = hildon.hildon_banner_show_animation(self.win, None, "Refreshing view...")        
+        # let gtk catch up...
+        while gtk.events_pending():
+            gtk.main_iteration()
         self.char_model.get_characters()
-        # wait notification end --danny
+        wait_anim.destroy()
 
     def do_charactersheet(self, treeview, path, view_column):
 
@@ -322,7 +329,10 @@ class CharacterSheetUI(BaseUI):
 
         self.win.show_all() 
 
-        # wait notification start --danny
+        wait_anim = hildon.hildon_banner_show_animation(self.win, None, "Loading character sheet...")        
+        # let gtk catch up...
+        while gtk.events_pending():
+            gtk.main_iteration()
 
         # Create menu
         # NOTE: we probably want a window-specific menu for this page, but the
@@ -380,7 +390,7 @@ class CharacterSheetUI(BaseUI):
         self.win.add_with_scrollbar(vbox)
         self.win.show_all()
 
-        # wait notification end --danny
+        wait_anim.destroy()
         
         # diablo doesnt have a glib module, but gobject module seems to have
         # the same functions...
@@ -479,9 +489,13 @@ class CharacterSheetUI(BaseUI):
         treeview.append_column(column)
 
 
-    def refresh_clicked(self, button):
+    def refresh_clicked(self, button, window):
+        wait_anim = hildon.hildon_banner_show_animation(self.win, None, "Loading overview...")        
+        # let gtk catch up...
+        while gtk.events_pending():
+            gtk.main_iteration()
         self.skills_model.get_skills()
-        # wait notification end --danny
+        wait_anim.destroy()
 
     def update_live_sp(self):
         self.live_sp_val = self.live_sp_val + self.spps * (self.UPDATE_INTERVAL / 1000)
