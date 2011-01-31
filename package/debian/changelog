@@ -1,5 +1,8 @@
-mevemon (0.4-9) stable; urgency=low
-
-    * Don't automatically convert API key to uppercase
+mevemon (0.5-1) stable; urgency=low
+    
+    * Support recent EVE changes in the API
+    * Improve performance
+    * Add logging
+    * Other minor fixes
 
  -- Ryan Campbell <campbellr@gmail.com>  Sat, 19 Jun 2010 13:30:32 -0007
