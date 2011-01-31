@@ -151,7 +151,7 @@ class BaseUI():
         treeview.append_column(column)
 
 
-    def new_account_clicked(self, window, widget):
+    def new_account_clicked(self, window):
         dialog = gtk.Dialog()
     
         #get the vbox to pack all the settings into
