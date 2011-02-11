@@ -17,7 +17,7 @@ function nl2p(text) {
 function first_paragraph(ptext) {
 
   pindex = ptext.indexOf("\n\n");
-  if ( pindex < 200 ) {
+  if ( pindex < 100 ) {
     pindex = ptext.indexOf("\n\n", pindex + 1);
   }
 
