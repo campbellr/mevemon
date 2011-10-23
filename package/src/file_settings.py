@@ -1,4 +1,5 @@
 """ wrapper for ini-file-based settings"""
+import os
 import configobj
 import constants
 
@@ -8,13 +9,13 @@ class Settings:
         For example, a typical mEveMon config file (at '~/.mevemon/mevemon.cfg')will look like this:
 
         [accounts]
-            [[account.<uid1>]]
-            uid = <uid1>
-            apikey = <apikey1>
+            [[account.<key_id1>]]
+            key_id = <key_id1>
+            ver_code = <ver_code1>
 
-            [[account.<uid2>]]
-            uid = <uid2>
-            apikey = <apikey2>
+            [[account.<key_id2>]]
+            key_id = <key_id2>
+            ver_code = <ver_code2>
 
         [general]
         # this is just a fake example, we don't store any general
@@ -26,11 +27,12 @@ class Settings:
     """
     def __init__(self, cfg_file=constants.CONFIG_PATH):
         self.cfg_file = cfg_file
-        self.config = configobj.ConfigObj(self.cfg_file)
         self._convert_gconf_to_cfgfile()
-   
+        self._detect_and_backup_old_cfg()
+        self.config = configobj.ConfigObj(self.cfg_file)
+        
     def get_accounts(self):
-        """ Returns a dictionary containing uid:api_key pairs gathered from the config file
+        """ Returns a dictionary containing key_id:ver_code pairs gathered from the config file
         """
         account_dict = {}
         try:
@@ -39,35 +41,35 @@ class Settings:
             return account_dict
         
         for account in cfg_accounts:
-            account_dict[account['uid']] = account['apikey']
+            account_dict[account['key_id']] = account['ver_code']
 
         return account_dict
 
-    def get_api_key(self, uid):
-        """ Returns the api key associated with the given uid.
+    def get_ver_code(self, key_id):
+        """ Returns the verification code associated with the given key_id.
         """
         try:
-            api_key = self.get_accounts()[uid]
-            return api_key
+            ver_code = self.get_accounts()[key_id]
+            return ver_code
         except KeyError:
-            raise Exception("UID '%s' is not in settings") 
+            raise Exception("KEY_ID '%s' is not in settings") 
 
-    def add_account(self, uid, api_key):
-        """ Adds the provided uid:api_key pair to the config file.
+    def add_account(self, key_id, ver_code):
+        """ Adds the provided key_id:ver_code pair to the config file.
         """
         if 'accounts' not in self.config.sections:
             self.config['accounts'] = {}
 
-        self.config['accounts']['account.%s' % uid] = {}
-        self.config['accounts']['account.%s' % uid]['uid'] = uid
-        self.config['accounts']['account.%s' % uid]['apikey'] = api_key
+        self.config['accounts']['account.%s' % key_id] = {}
+        self.config['accounts']['account.%s' % key_id]['key_id'] = key_id
+        self.config['accounts']['account.%s' % key_id]['ver_code'] = ver_code
         self.write()
 
-    def remove_account(self, uid):
-        """ Removes the provided uid key from the config file
+    def remove_account(self, key_id):
+        """ Removes the provided key_id key from the config file
         """
         for key in self.config['accounts']:
-            if self.config['accounts'][key]['uid'] == uid:
+            if self.config['accounts'][key]['key_id'] == key_id:
                 del self.config['accounts'][key]
                 self.write()
         
@@ -84,6 +86,26 @@ class Settings:
         """
         import gconf_settings
         gsettings = gconf_settings.Settings()
-        for uid, apikey in gsettings.get_accounts().items():
-            self.add_account(uid, apikey)
-            gsettings.remove_account(uid)
+        for key_id, ver_code in gsettings.get_accounts().items():
+            self.add_account(key_id, ver_code)
+            gsettings.remove_account(key_id)
+
+    def _detect_and_backup_old_cfg(self):
+        """ Searches the config file for the string 'apikey', which
+        would only be present in the old legacy config file. If it's
+        found, it backs up the file and we start over.
+        """
+        try:
+            temp = open(self.cfg_file, "r")
+        except IOError:
+            # if it's not here, forget about it - mission accomplished
+            return
+        config_contents = temp.read()
+        temp.close()
+        if config_contents.find('apikey') > 0:
+            # move the file then create a new one
+            os.rename(self.cfg_file, self.cfg_file + '.old')
+        else:
+            # we've got an updated cfg file
+            pass
+

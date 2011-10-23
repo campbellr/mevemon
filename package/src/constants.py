@@ -20,7 +20,14 @@ ABOUT_AUTHORS = ['Ryan Campbell <campbellr@gmail.com>',
                  'Danny Campbell <danny.campbell@gmail.com>']
 
 ABOUT_WEBSITE = 'http://mevemon.garage.maemo.org'
-APP_VERSION = '0.5-1'
+APP_VERSION = '0.5-2'
 
-# size of a valid api key
-KEY_SIZE = 64
+# size of a valid verification code
+MIN_VER_CODE_SIZE = 20
+MAX_VER_CODE_SIZE = 64
+
+# the access mask we need to perform mevemon's functions (we may want
+# this to be a _minimum_ access, but I'd have to take a closer look at
+# how the masks work - FIXME, danny)
+
+REQUIRED_ACCESS_MASK = 131081

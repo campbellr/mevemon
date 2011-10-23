@@ -61,8 +61,8 @@ class SettingsDialog(gtk.Dialog):
 
     
     def on_delete_account_clicked(self):
-        uid = self._get_selected_item(0)
-        self.controller.settings.remove_account(uid)
+        key_id = self._get_selected_item(0)
+        self.controller.settings.remove_account(key_id)
         self.accounts.refresh()
     
     def _get_selected_item(self, column):
@@ -87,17 +87,17 @@ class NewAccountDialog(gtk.Dialog):
 
         while not valid_credentials:
             if result == gtk.RESPONSE_OK:
-                uid = self.uidEntry.get_text()
-                api_key = self.apiEntry.get_text()
+                key_id = self.keyIDEntry.get_text()
+                ver_code = self.verCodeEntry.get_text()
                 try:
-                    validation.validate_uid(uid)
-                    validation.validate_api_key(api_key)
+                    validation.validate_key_id(key_id)
+                    validation.validate_ver_code(ver_code)
                 except validation.ValidationError, e:
                     self.report_error(e.message)
                     result = self.run()
                 else:
                     valid_credentials = True
-                    self.controller.settings.add_account(uid, api_key)
+                    self.controller.settings.add_account(key_id, ver_code)
             else:
                 break
 
@@ -110,25 +110,25 @@ class NewAccountDialog(gtk.Dialog):
     
         self.set_title("New Account")
 
-        uidLabel = gtk.Label("User ID:")
-        uidLabel.set_justify(gtk.JUSTIFY_LEFT)
-        vbox.add(uidLabel)
+        keyIDLabel = gtk.Label("Key ID:")
+        keyIDLabel.set_justify(gtk.JUSTIFY_LEFT)
+        vbox.add(keyIDLabel)
         
-        self.uidEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
-        self.uidEntry.set_placeholder("User ID")
-        self.uidEntry.set_property('is_focus', False)
+        self.keyIDEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.keyIDEntry.set_placeholder("Key ID")
+        self.keyIDEntry.set_property('is_focus', False)
         
-        vbox.add(self.uidEntry)
+        vbox.add(self.keyIDEntry)
 
-        apiLabel = gtk.Label("API key:")
-        apiLabel.set_justify(gtk.JUSTIFY_LEFT)
-        vbox.add(apiLabel)
+        verCodeLabel = gtk.Label("Verification code:")
+        verCodeLabel.set_justify(gtk.JUSTIFY_LEFT)
+        vbox.add(verCodeLabel)
         
-        self.apiEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
-        self.apiEntry.set_placeholder("API Key")
-        self.apiEntry.set_property('is_focus', False)
+        self.verCodeEntry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.verCodeEntry.set_placeholder("Verification code")
+        self.verCodeEntry.set_property('is_focus', False)
 
-        vbox.add(self.apiEntry)
+        vbox.add(self.verCodeEntry)
        
         ok_button = self.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 
@@ -150,8 +150,8 @@ class AccountsTreeView(hildon.GtkTreeView):
     def add_columns(self):
         #Column 0 for the treeview
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('User ID', renderer, 
-                text=models.AccountsModel.C_UID)
+        column = gtk.TreeViewColumn('Key ID', renderer, 
+                text=models.AccountsModel.C_KID)
         column.set_property("expand", True)
         self.append_column(column)
 

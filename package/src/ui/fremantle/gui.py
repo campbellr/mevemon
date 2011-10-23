@@ -66,10 +66,10 @@ class mEveMonUI:
         
         # column 0 is the portrait, column 1 is name
         char_name = model.get_value(miter, 1)
-        uid = model.get_value(miter, 2)
+        key_id = model.get_value(miter, 2)
         
-        if uid:
-            CharacterSheetUI(self.controller, char_name, uid)
+        if key_id:
+            CharacterSheetUI(self.controller, char_name, key_id)
         else:
             pass
     

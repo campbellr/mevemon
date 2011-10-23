@@ -1,5 +1,5 @@
 """ This module contains all our input validation functions """
-from constants import KEY_SIZE
+from constants import MIN_VER_CODE_SIZE, MAX_VER_CODE_SIZE
 
 class ValidationError(StandardError):
     """ Exception that is raised if input validation fails
@@ -12,27 +12,35 @@ class ValidationError(StandardError):
         return repr(self.message)
 
 
+def validate_key_id(key_id):
 
-def validate_api_key(api_key):
-    """ Validates an EVE api key. throws ValidationError exception if the
-        format is invalid.
+    """ Validates an EVE key ID. throws ValidationError exception if
+    the format is invalid.
     """
+
     #TODO: anything else we can do to validate the api key?
+
+    # I don't know enough about the keyID yet. seems to be only
+    # numeric.  The 2 I made were 705 and 706 respectively. I think
+    # they are just incrementing numbers. But I won't assume that
+    # yet...
     
-    if len(api_key) != KEY_SIZE:
-        raise ValidationError("API Key must be %s characters" % KEY_SIZE)
-    elif not api_key.isalnum():
-        raise ValidationError("API Key must only contain alphanumeric " +\
-                              "characters")
+    pass
 
 
-def validate_uid(uid):
-    """ Validates an EVE Online uid, throws ValidationError exception if the
-        format is invalid.
-    """
-    #TODO: anything else we can do to validate the uid?
+def validate_ver_code(ver_code):
 
-    if not uid.isdigit():
-        raise ValidationError("UID must be a number")
-    if len(uid) < 1:
-        raise ValidationError("Missing UID")
+    """ Validates an EVE Online verification code, throws
+    ValidationError exception if the format is invalid.
+
+     """
+
+    # What we DO know about the verification code is that it has to be
+    # at least 20 digits and at most 64. Seems to be alphanumeric
+    # only.
+
+
+    if len(ver_code) < MIN_VER_CODE_SIZE or len(ver_code) > MAX_VER_CODE_SIZE:
+        raise ValidationError("Verification code must be from 20 to 64 "
+                              "characters.")
+    

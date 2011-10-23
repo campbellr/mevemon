@@ -28,10 +28,10 @@ from menu import Menu
 class CharacterSheetUI:
     UPDATE_INTERVAL = 1
 
-    def __init__(self, controller, char_name, uid):
+    def __init__(self, controller, char_name, key_id):
         self.controller = controller
         self.char_name = char_name
-        self.uid = uid
+        self.key_id = key_id
         self.sheet = None
         self.char_id = None
         self.skills_model = None
@@ -57,7 +57,7 @@ class CharacterSheetUI:
 
         self.char_id = self.controller.char_name2id(self.char_name)
 
-        self.sheet = self.controller.get_char_sheet(self.uid, self.char_id)
+        self.sheet = self.controller.get_char_sheet(self.key_id, self.char_id)
 
         self.win.set_title(self.char_name)
 
@@ -117,7 +117,7 @@ class CharacterSheetUI:
 
 
     def display_skill_in_training(self, vbox):
-        skill = self.controller.get_skill_in_training(self.uid, self.char_id)
+        skill = self.controller.get_skill_in_training(self.key_id, self.char_id)
         
         if skill.skillInTraining:
 
@@ -161,11 +161,11 @@ class CharacterSheetUI:
         self.add_label("<small><b>Balance:</b> %s ISK</small>" % 
                 util.comma(self.sheet.balance), box)
 
-        self.live_sp_val = self.controller.get_sp(self.uid, self.char_id)
+        self.live_sp_val = self.controller.get_sp(self.key_id, self.char_id)
         self.live_sp = self.add_label("<small><b>Total SP:</b> %s</small>" %
                 util.comma(int(self.live_sp_val)), box)
         
-        self.spps = self.controller.get_spps(self.uid, self.char_id)[0]
+        self.spps = self.controller.get_spps(self.key_id, self.char_id)[0]
 
 
     def fill_stats(self, box):

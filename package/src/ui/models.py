@@ -2,7 +2,10 @@ import gtk
 import util
 
 class AccountsModel(gtk.ListStore):
-    C_UID, C_APIKEY, C_CHARS = range(3)
+
+    # userID no longer exists, we want keyID
+    # api key becomes verification code... --danny
+    C_KID, C_VCODE, C_CHARS = range(3)
 
     def __init__(self, controller):
         gtk.ListStore.__init__(self, str, str, str)
@@ -17,21 +20,22 @@ class AccountsModel(gtk.ListStore):
         if not accts_dict:
             return None
 
-        for uid, key in accts_dict.items():
+        for key_id, key in accts_dict.items():
             liter = self.append()
-            chars = self.controller.get_chars_from_acct(uid)
+            chars, ids = self.controller.get_chars_from_acct(key_id)
             if chars:
                 char_str = ', '.join(chars)
                 char_str = "<small>%s</small>" % char_str
             else:
                 char_str = ""
 
-            self.set(liter, self.C_UID, uid, self.C_APIKEY, key, self.C_CHARS, char_str)
+            self.set(liter, self.C_KID, key_id, self.C_VCODE, key, self.C_CHARS, char_str)
         
 
 
 class CharacterListModel(gtk.ListStore):
-    C_PORTRAIT, C_NAME, C_UID = range(3)
+
+    C_PORTRAIT, C_NAME, C_KID = range(3)
 
     def __init__(self, controller):
         gtk.ListStore.__init__(self, gtk.gdk.Pixbuf, str, str)
@@ -44,9 +48,9 @@ class CharacterListModel(gtk.ListStore):
         
         char_list = self.controller.get_characters()
 
-        for name, icon, uid in char_list:
+        for name, icon, key_id in char_list:
             liter = self.append()
-            self.set(liter, self.C_PORTRAIT, self._set_pix(icon), self.C_NAME, name, self.C_UID, uid)
+            self.set(liter, self.C_PORTRAIT, self._set_pix(icon), self.C_NAME, name, self.C_KID, key_id)
 
     def _set_pix(self, filename):
         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
@@ -67,9 +71,9 @@ class CharacterSkillsModel(gtk.ListStore):
     def get_skills(self):
         self.clear()
         
-        uid = self.controller.charid2uid(self.charID)
+        key_id = self.controller.charid2key_id(self.charID)
 
-        self.sheet = self.controller.get_char_sheet(uid, self.charID)
+        self.sheet = self.controller.get_char_sheet(key_id, self.charID)
         
         skilltree = self.controller.get_skill_tree()
 

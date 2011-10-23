@@ -35,6 +35,7 @@ import apicache
 import file_settings as settings
 from constants import LOGPATH, MAXBYTES, LOGCOUNT, CONFIG_DIR, IMG_CACHE_PATH
 from constants import APICACHE_PATH
+from constants import REQUIRED_ACCESS_MASK
 
 #ugly hack to check maemo version. any better way?
 if hasattr(hildon, "StackableWindow"):
@@ -61,14 +62,14 @@ class mEveMon:
     def quit(self, *args):
         gtk.main_quit()
 
-    def get_auth(self, uid):
+    def get_auth(self, key_id):
         """ Returns an authentication object to be used for eveapi calls
             that require authentication.
         """
-        api_key = self.settings.get_api_key(uid)
+        ver_code = self.settings.get_ver_code(key_id)
 
         try:
-            auth = self.cached_api.auth(userID=uid, apiKey=api_key)
+            auth = self.cached_api.auth(keyID=key_id, vCode=ver_code)
         except Exception, e:
             self.gui.report_error(str(e))
             logging.getLogger('mevemon').exception("Failed to get character name")
@@ -76,12 +77,12 @@ class mEveMon:
 
         return auth
 
-    def get_char_sheet(self, uid, char_id):
+    def get_char_sheet(self, key_id, char_id):
         """ Returns an object containing information about the character specified
             by the provided character ID.
         """
         try:
-            sheet = self.get_auth(uid).character(char_id).CharacterSheet()
+            sheet = self.get_auth(key_id).character(char_id).CharacterSheet()
         except Exception, e:
             self.gui.report_error(str(e))
             logging.getLogger('mevemon').exception("Failed to get character name")
@@ -89,7 +90,7 @@ class mEveMon:
 
         return sheet
 
-    def charid2uid(self, char_id):
+    def charid2key_id(self, char_id):
         """ Takes a character ID and returns the user ID of the account containing
             the character.
 
@@ -98,8 +99,8 @@ class mEveMon:
         """
         acct_dict = self.settings.get_accounts()
         
-        for uid, api_key in acct_dict.items():
-            auth = self.cached_api.auth(userID=uid, apiKey=api_key)
+        for key_id, ver_code in acct_dict.items():
+            auth = self.cached_api.auth(keyID=key_id, vCode=ver_code)
             try:
                 api_char_list = auth.account.Characters()
                 characters = api_char_list.characters
@@ -108,7 +109,7 @@ class mEveMon:
 
             for character in characters:
                 if character.characterID == char_id:
-                    return uid
+                    return key_id
 
     
     def char_id2name(self, char_id):
@@ -144,25 +145,26 @@ class mEveMon:
 
         return char_id
 
-    def get_chars_from_acct(self, uid):
+    def get_chars_from_acct(self, key_id):
         """ Returns a list of characters associated with the provided user ID.
         """
-        auth = self.get_auth(uid)
+        auth = self.get_auth(key_id)
         if not auth:
             return None
         else:
             try:
                 api_char_list = auth.account.Characters()
-                char_list = [char.name for char in api_char_list.characters]
+                char_name_list = [char.name for char in api_char_list.characters]
+                char_id_list = [char.characterID for char in api_char_list.characters]
             except Exception, e:
                 self.gui.report_error(str(e))
                 logging.getLogger('mevemon').exception("Failed to get character list")
                 return None
 
-        return char_list
+        return char_name_list, char_id_list
 
     def get_characters(self):
-        """ Returns a list of (character_name, image_path, uid) tuples from all the
+        """ Returns a list of (character_name, image_path, key_id) tuples from all the
             accounts that are registered to mEveMon.
         
             If there is an authentication issue, then instead of adding a valid
@@ -172,6 +174,7 @@ class mEveMon:
         ui_char_list = []
         err_img = "/usr/share/mevemon/imgs/error.jpg"
         err_txt = "Problem fetching info for account (or no accounts added)"
+        bad_key = "Incorrect key access. Your access mask should be %s." % REQUIRED_ACCESS_MASK
 
         placeholder_chars = (err_txt, err_img, None)
         
@@ -179,16 +182,26 @@ class mEveMon:
         if not acct_dict:
             return [placeholder_chars]
 
-        for uid in acct_dict.keys():
-            char_names = self.get_chars_from_acct(uid)
+        for key_id, ver_code in acct_dict.items():
+
+            char_names, char_ids = self.get_chars_from_acct(key_id)
             
             if not char_names:
-                ui_char_list.append((err_txt + "\t(UID: %s)" % uid, err_img, None))
+                ui_char_list.append((err_txt + "\t(KEY_ID: %s)" % key_id, err_img, None))
             else:
-                # append each char we get to the list we'll return to the
-                # UI --danny
-                for char_name in char_names:
-                    ui_char_list.append((char_name, self.get_portrait(char_name, 64) , uid) )
+
+
+                # since there are char names, let's check the key
+                # access and if it's bad we'll generate a key URL for
+                # each character
+                for char_name, char_id in zip(char_names, char_ids):
+                    if self.get_access_mask(key_id, ver_code) != REQUIRED_ACCESS_MASK:
+                        key_url = self.generate_access_mask_url(char_id)
+                        ui_char_list.append((bad_key, err_img, None))
+                    else:
+                        # append each char we get to the list we'll
+                        # return to the UI --danny
+                        ui_char_list.append((char_name, self.get_portrait(char_name, 64), key_id))
         
         return ui_char_list
 
@@ -211,12 +224,13 @@ class mEveMon:
         
         return tree
 
-    def get_skill_in_training(self, uid, char_id):
+    def get_skill_in_training(self, key_id, char_id):
         """ Returns an object from eveapi containing information about the
             current skill in training
         """
         try:
-            skill = self.get_auth(uid).character(char_id).SkillInTraining()
+            # should this be accessing the cached object? (confused) --danny
+            skill = self.get_auth(key_id).character(char_id).SkillInTraining()
         except Exception, e:
             self.gui.report_error(str(e))
             logging.getLogger('mevemon').exception("Failed to get skill-in-training:")
@@ -243,24 +257,24 @@ class mEveMon:
         assert(connection.request_connection(conic.CONNECT_FLAG_NONE))
 
 
-    def get_sp(self, uid, char_id):
+    def get_sp(self, key_id, char_id):
         """ Adds up the SP for all known skills, then calculates the SP gained
             from an in-training skill.
         """
         actual_sp = 0
         
-        sheet = self.get_char_sheet(uid, char_id)
+        sheet = self.get_char_sheet(key_id, char_id)
         for skill in sheet.skills:
             actual_sp += skill.skillpoints
 
-        live_sp = actual_sp + self.get_training_sp(uid, char_id)
+        live_sp = actual_sp + self.get_training_sp(key_id, char_id)
 
         return live_sp
 
-    def get_spps(self, uid, char_id):
+    def get_spps(self, key_id, char_id):
         """ Calculate and returns the skill points per hour for the given character.
         """
-        skill = self.get_skill_in_training(uid, char_id)
+        skill = self.get_skill_in_training(key_id, char_id)
         
         if not skill.skillInTraining:
             return (0, 0)
@@ -272,10 +286,10 @@ class mEveMon:
     
         return (spps, skill.trainingStartTime)
 
-    def get_training_sp(self, uid, char_id):
+    def get_training_sp(self, key_id, char_id):
         """ returns the additional SP that the in-training skill has acquired
         """
-        spps_tuple = self.get_spps(uid, char_id)
+        spps_tuple = self.get_spps(key_id, char_id)
         
         if not spps_tuple:
             return 0
@@ -292,6 +306,26 @@ class mEveMon:
             util.clean_dir(APICACHE_PATH)
         except OSError, e:
             logging.getLogger('mevemon').exception("Failed to clear cache")
+
+    def get_access_mask(self, key_id, ver_code):
+
+        """
+        Returns the access mask that determines what data we have
+        access to on the account.
+
+        """
+
+        return self.cached_api.account.APIKeyInfo(keyID=key_id, vCode=ver_code).key.accessMask
+
+    def generate_access_mask_url(self, char_id):
+
+        """
+        Generates a URL to send the user to the page that will help
+        them create an access key with exactly the access mevemon
+        needs.
+        """
+
+        return "https://supporttest.eveonline.com/api/Key/CreatePredefined/%s/%s/false" % (REQUIRED_ACCESS_MASK, char_id)
 
 def excepthook(ex_type, value, tb):
     """ a replacement for the default exception handler that logs errors"""
