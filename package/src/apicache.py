@@ -43,17 +43,21 @@ class cache_handler( object ):
                 f.close()
 
         if cached:
+
             # check if the cached object is fresh enough
             if time.time() < cached[0]:
                 self.log("%s: returning cached document." % path)
                 # return the cached object
                 return cached[1]
-
+            else:
                 # if it's stale, purge it --danny
                 self.log("%s: cache expired, purging!" % path)
                 del self.cache[key]
                 if cacheFile:
                     os.remove(cacheFile)
+
+        # if not cached?
+        else:
 
             self.log("%s: not cached, fetching from server..." % path)
             # We didn't get a cache hit so return None to indicate that the data should be requested from server
