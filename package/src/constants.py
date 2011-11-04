@@ -20,7 +20,7 @@ ABOUT_AUTHORS = ['Ryan Campbell <campbellr@gmail.com>',
                  'Danny Campbell <danny.campbell@gmail.com>']
 
 ABOUT_WEBSITE = 'http://mevemon.garage.maemo.org'
-APP_VERSION = '0.5-2'
+APP_VERSION = '0.6'
 
 # size of a valid verification code
 MIN_VER_CODE_SIZE = 20
