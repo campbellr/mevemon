@@ -4,7 +4,7 @@
 
 #edit these when creating a new release
 MAJOR_VER='0'
-MINOR_VER='5'
+MINOR_VER='6'
 PKG_VER='1'
 
 compile:

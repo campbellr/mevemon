@@ -1,8 +1,6 @@
-mevemon (0.5-1) stable; urgency=low
+mevemon (0.6-1) stable; urgency=low
     
-    * Support recent EVE changes in the API
-    * Improve performance
-    * Add logging
-    * Other minor fixes
+    * Add support for new API keys, remove support for legacy keys
+    * Further improve caching performance
 
- -- Ryan Campbell <campbellr@gmail.com>  Sat, 19 Jun 2010 13:30:32 -0007
+ -- Ryan Campbell <campbellr@gmail.com>  Sat, 5 Nov 2011 00:30:00 -0007
